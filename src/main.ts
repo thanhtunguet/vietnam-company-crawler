@@ -12,18 +12,7 @@ async function bootstrap() {
   if (MODE === AppMode.APP) {
     const app = await NestFactory.create(AppModule);
 
-    const config = new DocumentBuilder()
-      .setTitle(snakeCase(name).toUpperCase())
-      .setDescription(description)
-      .setVersion(version)
-      .build();
-
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
-
     app.use(cookieParser());
-
-    app.enableCors({});
 
     // Authentication & Session
     app.use(
@@ -39,6 +28,24 @@ async function bootstrap() {
         },
       }),
     );
+
+    if (process.env.NODE_ENV === 'development') {
+      const config = new DocumentBuilder()
+        .setTitle(snakeCase(name).toUpperCase())
+        .setDescription(description)
+        .setVersion(version)
+        .build();
+
+      const document = SwaggerModule.createDocument(app, config);
+      SwaggerModule.setup('api', app, document);
+    }
+
+    if (process.env.ENABLE_CORS) {
+      app.enableCors({
+        origin: process.env.CORS_ORIGIN,
+        credentials: true,
+      });
+    }
 
     await app
       .listen(PORT)

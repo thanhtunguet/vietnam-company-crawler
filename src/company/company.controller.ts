@@ -1,9 +1,9 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryDto } from 'src/_dtos/query.dto';
 import { Company } from 'src/_entities';
 import { Repository } from 'typeorm';
+import { CompanyListPayloadDto } from './dtos/company-list-payload.dto';
 import { CompanyDto } from './dtos/company.dto';
 
 @ApiTags('Company')
@@ -20,9 +20,20 @@ export class CompanyController {
     type: CompanyDto,
     isArray: true,
   })
-  public async list(@Query() queryDto: QueryDto): Promise<CompanyDto[]> {
-    const { skip = 0, take = 10 } = queryDto;
-    return this.companyRepository.find({ skip, take });
+  public async list(
+    @Query() queryDto: CompanyListPayloadDto,
+  ): Promise<CompanyDto[]> {
+    const { skip = 0, take = 10, provinceId } = queryDto;
+
+    return this.companyRepository.find({
+      where: provinceId
+        ? {
+            provinceId,
+          }
+        : undefined,
+      skip,
+      take,
+    });
   }
 
   // Count number of company
@@ -30,8 +41,17 @@ export class CompanyController {
   @ApiResponse({
     type: 'number',
   })
-  public async count(): Promise<number> {
-    return this.companyRepository.count();
+  public async count(
+    @Query() queryDto: CompanyListPayloadDto,
+  ): Promise<number> {
+    const { provinceId } = queryDto;
+    return this.companyRepository.count({
+      where: provinceId
+        ? {
+            provinceId,
+          }
+        : undefined,
+    });
   }
 
   // Get company by id

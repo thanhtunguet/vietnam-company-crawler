@@ -6,10 +6,9 @@ import { CrawlerJob } from 'src/_entities';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { CrawlerMqttService } from './crawler.mqtt.service';
-import { DetailJobDto } from './dtos/detail-job.dto';
 import { PartialJobDto } from './dtos/partial-job.dto';
-import { CrawlerJobType } from './types/CrawlerJobType';
 import { CrawlerJobStatus } from './types/CrawlerJobStatus';
+import { CrawlerJobType } from './types/CrawlerJobType';
 import { CrawlerTopic } from './types/CrawlerTopic';
 
 @ApiTags('Crawler')
@@ -100,14 +99,33 @@ export class CrawlerController {
     };
   }
 
-  // Trigger Detail Crawl
-  @Post('detail')
-  @ApiBody({
-    type: DetailJobDto,
-  })
-  public async triggerDetailCrawl(@Body() body: { companyUrl: string }) {
-    const { companyUrl } = body;
+  // Trigger Detail Crawl Full
+  @Post('detail-all')
+  public async triggerDetailCrawlFull() {
+    const job = this.crawlerJobRepository.create({
+      id: uuidv4(),
+      type: CrawlerJobType.DETAIL_FULL,
+      status: CrawlerJobStatus.PENDING,
+      progress: 0,
+      startedAt: null,
+      finishedAt: null,
+    });
+    await this.crawlerJobRepository.save(job);
 
+    this.mqttService.publish(CrawlerTopic.JOB_START, {
+      type: CrawlerJobType.DETAIL_FULL,
+      jobId: job.id,
+    });
+
+    return {
+      message: `Detail crawl triggered for all companies`,
+      jobId: job.id,
+    };
+  }
+
+  // Trigger Detail Crawl
+  @Get('detail/:companyUrl')
+  public async triggerDetailCrawl(@Param('companyUrl') companyUrl: string) {
     const job = this.crawlerJobRepository.create({
       id: uuidv4(),
       type: CrawlerJobType.DETAIL,
@@ -127,30 +145,6 @@ export class CrawlerController {
 
     return {
       message: `Detail crawl triggered for ${companyUrl}`,
-      jobId: job.id,
-    };
-  }
-
-  // Trigger Detail Crawl Full
-  @Post('detail_full')
-  public async triggerDetailCrawlFull() {
-    const job = this.crawlerJobRepository.create({
-      id: uuidv4(),
-      type: CrawlerJobType.DETAIL_FULL,
-      status: CrawlerJobStatus.PENDING,
-      progress: 0,
-      startedAt: null,
-      finishedAt: null,
-    });
-    await this.crawlerJobRepository.save(job);
-
-    this.mqttService.publish(CrawlerTopic.JOB_START, {
-      type: CrawlerJobType.DETAIL_FULL,
-      jobId: job.id,
-    });
-
-    return {
-      message: `Detail crawl triggered for all companies`,
       jobId: job.id,
     };
   }
@@ -175,7 +169,7 @@ export class CrawlerController {
     };
   }
 
-  @Post('partial')
+  @Post('partial-all')
   @ApiBody({
     type: PartialJobDto,
   })

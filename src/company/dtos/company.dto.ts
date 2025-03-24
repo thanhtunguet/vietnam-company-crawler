@@ -1,80 +1,88 @@
-import { Company, CompanyBusinessMapping } from 'src/_entities';
 import { ApiProperty } from '@nestjs/swagger';
+import { Company } from 'src/_entities';
 import { CompanyBusinessMappingDto } from './company-business-mapping.dto';
 
 export class CompanyDto implements Company {
-  @ApiProperty({ description: 'Company ID' })
+  @ApiProperty({ required: false, description: 'Company ID' })
   id: number;
 
-  @ApiProperty({ description: 'Company tax code' })
+  @ApiProperty({ required: false, description: 'Company tax code' })
   taxCode: string;
 
-  @ApiProperty({ description: 'Company name' })
+  @ApiProperty({ required: false, description: 'Company name' })
   name: string;
 
-  @ApiProperty({ description: 'Company description' })
+  @ApiProperty({ required: false, description: 'Company description' })
   description: string;
 
-  @ApiProperty({ description: 'Creation timestamp' })
+  @ApiProperty({ required: false, description: 'Creation timestamp' })
   createdAt: Date;
 
-  @ApiProperty({ description: 'Last update timestamp' })
+  @ApiProperty({ required: false, description: 'Last update timestamp' })
   updatedAt: Date;
 
-  @ApiProperty({ description: 'Deletion timestamp', required: false })
+  @ApiProperty({
+    required: false,
+    description: 'Deletion timestamp',
+  })
   deletedAt: Date;
 
-  @ApiProperty({ description: 'Company representative' })
+  @ApiProperty({ required: false, description: 'Company representative' })
   representative: string;
 
-  @ApiProperty({ description: 'Main business activity' })
+  @ApiProperty({ required: false, description: 'Main business activity' })
   mainBusiness: string;
 
-  @ApiProperty({ description: 'Company address' })
+  @ApiProperty({ required: false, description: 'Company address' })
   address: string;
 
-  @ApiProperty({ description: 'Issue date' })
+  @ApiProperty({ required: false, description: 'Issue date' })
   issuedAt: Date;
 
-  @ApiProperty({ description: 'Current company status' })
+  @ApiProperty({ required: false, description: 'Current company status' })
   currentStatus: string;
 
-  @ApiProperty({ description: 'Alternative company name', required: false })
+  @ApiProperty({
+    required: false,
+    description: 'Alternative company name',
+  })
   alternateName: string;
 
-  @ApiProperty({ description: 'Province ID' })
+  @ApiProperty({ required: false, description: 'Province ID' })
   provinceId: number;
 
-  @ApiProperty({ description: 'District ID' })
+  @ApiProperty({ required: false, description: 'District ID' })
   districtId: number;
 
-  @ApiProperty({ description: 'Main business ID' })
+  @ApiProperty({ required: false, description: 'Main business ID' })
   mainBusinessId: number;
 
-  @ApiProperty({ description: 'Company URL slug' })
+  @ApiProperty({ required: false, description: 'Company URL slug' })
   slug: string;
 
-  @ApiProperty({ description: 'Ward ID' })
+  @ApiProperty({ required: false, description: 'Ward ID' })
   wardId: number;
 
-  @ApiProperty({ description: 'Formatted address' })
+  @ApiProperty({ required: false, description: 'Formatted address' })
   formattedAddress: string;
 
-  @ApiProperty({ description: 'Province name' })
+  @ApiProperty({ required: false, description: 'Province name' })
   provinceName: string;
 
-  @ApiProperty({ description: 'District name' })
+  @ApiProperty({ required: false, description: 'District name' })
   districtName: string;
 
-  @ApiProperty({ description: 'Ward name' })
+  @ApiProperty({ required: false, description: 'Ward name' })
   wardName: string;
 
   @ApiProperty({
+    required: false,
     description: 'Whether the company data has been fully crawled',
   })
   isCrawledFull: boolean;
 
   @ApiProperty({
+    required: false,
     description: 'Company business mappings',
     type: [CompanyBusinessMappingDto],
   })
