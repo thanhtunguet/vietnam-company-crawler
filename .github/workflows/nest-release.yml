@@ -3,7 +3,7 @@ name: Node.js and Docker Build
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
   pull_request:
     branches:
@@ -23,7 +23,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Build Node.js
         run: |
