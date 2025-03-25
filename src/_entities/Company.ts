@@ -1,5 +1,13 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
 import { CompanyBusinessMapping } from './CompanyBusinessMapping';
+import { Business } from './Business';
 
 @Index('Company_Id_TaxCode_Name_index', ['id', 'taxCode', 'name'], {})
 @Index('Company_pk', ['id'], { unique: true })
@@ -98,4 +106,18 @@ export class Company {
     (companyBusinessMapping) => companyBusinessMapping.company,
   )
   companyBusinessMappings: CompanyBusinessMapping[];
+
+  @ManyToMany(() => Business)
+  @JoinTable({
+    name: 'CompanyBusinessMapping',
+    joinColumn: {
+      name: 'companyId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'businessId',
+      referencedColumnName: 'id',
+    },
+  })
+  businesses: Business[];
 }

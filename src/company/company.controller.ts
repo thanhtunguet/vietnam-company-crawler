@@ -71,7 +71,7 @@ export class CompanyController {
           taxCode: idOrTaxCode,
         },
       ],
-      relations: ['companyBusinessMappings'],
+      relations: ['businesses'],
     });
   }
 }

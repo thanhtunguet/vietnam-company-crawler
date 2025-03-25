@@ -5,7 +5,7 @@ import { Province } from 'src/_entities';
 import { QueryDto } from 'src/_dtos/query.dto';
 
 @Injectable()
-export class ProvinceService {
+export class AreaService {
   constructor(
     @InjectRepository(Province)
     private readonly provinceRepository: Repository<Province>,

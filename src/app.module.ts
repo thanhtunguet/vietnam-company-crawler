@@ -13,7 +13,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CrawlerModule } from './crawler/crawler.module';
 import { CompanyModule } from './company/company.module';
-import { ProvinceModule } from './province/province.module';
+import { AreaModule as AreaModule } from './area/area.module';
 
 @Module({
   imports: [
@@ -30,7 +30,7 @@ import { ProvinceModule } from './province/province.module';
         trustServerCertificate: true,
       },
     }),
-    ProvinceModule,
+    AreaModule,
     CompanyModule,
     CrawlerModule,
   ],

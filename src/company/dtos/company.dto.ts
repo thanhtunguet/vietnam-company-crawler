@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Company } from 'src/_entities';
+import { Business, Company } from 'src/_entities';
 import { CompanyBusinessMappingDto } from './company-business-mapping.dto';
 
 export class CompanyDto implements Company {
+  businesses: Business[];
+
   @ApiProperty({ required: false, description: 'Company ID' })
   id: number;
 
