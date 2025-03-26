@@ -1,54 +1,53 @@
 import { Column, Entity, Index } from 'typeorm';
 
-@Index('District_Id_Code_Name_index', ['id', 'code', 'name'], {})
-@Index('District_pk', ['id'], { unique: true })
+@Index('Code', ['code'], { unique: true })
 @Index('District_pk2', ['code'], { unique: true })
-@Index('UQ_a343921f157c83f26986f11550b', ['code'], { unique: true })
-@Entity('District', { schema: 'dbo' })
+@Index('District_Id_Code_Name_index', ['id', 'code', 'name'], {})
+@Entity('District', { schema: 'TTDN' })
 export class District {
   @Column('bigint', { primary: true, name: 'Id' })
   id: number;
 
-  @Column('nvarchar', {
+  @Column('varchar', {
     name: 'Code',
     nullable: true,
     unique: true,
-    length: 500,
+    length: 100,
   })
   code: string | null;
 
-  @Column('nvarchar', { name: 'Name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
   name: string | null;
 
-  @Column('nvarchar', { name: 'Type', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Type', nullable: true, length: 500 })
   type: string | null;
 
   @Column('datetime', {
     name: 'CreatedAt',
     nullable: true,
-    default: () => 'getdate()',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date | null;
 
   @Column('datetime', {
     name: 'UpdatedAt',
     nullable: true,
-    default: () => 'getdate()',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date | null;
 
   @Column('datetime', { name: 'DeletedAt', nullable: true })
   deletedAt: Date | null;
 
-  @Column('nvarchar', { name: 'ProvinceName', nullable: true, length: 500 })
+  @Column('varchar', { name: 'ProvinceName', nullable: true, length: 500 })
   provinceName: string | null;
 
-  @Column('nvarchar', { name: 'EnglishName', nullable: true, length: 500 })
+  @Column('varchar', { name: 'EnglishName', nullable: true, length: 500 })
   englishName: string | null;
 
   @Column('bigint', { name: 'ProvinceId', nullable: true })
   provinceId: number | null;
 
-  @Column('nvarchar', { name: 'Slug', nullable: true, length: 255 })
+  @Column('varchar', { name: 'Slug', nullable: true, length: 255 })
   slug: string | null;
 }

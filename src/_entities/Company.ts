@@ -1,70 +1,61 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
-} from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { CompanyBusinessMapping } from './CompanyBusinessMapping';
-import { Business } from './Business';
 
-@Index('Company_Id_TaxCode_Name_index', ['id', 'taxCode', 'name'], {})
-@Index('Company_pk', ['id'], { unique: true })
+@Index('TaxCode', ['taxCode'], { unique: true })
 @Index('Company_pk2', ['taxCode'], { unique: true })
-@Index('UQ_edd387a275b4f8588c0832ca6e4', ['taxCode'], { unique: true })
-@Entity('Company', { schema: 'dbo' })
+@Index('Company_Id_TaxCode_Name_index', ['id', 'taxCode'], {})
+@Entity('Company', { schema: 'TTDN' })
 export class Company {
   @Column('bigint', { primary: true, name: 'Id' })
   id: number;
 
-  @Column('nvarchar', {
+  @Column('varchar', {
     name: 'TaxCode',
     nullable: true,
     unique: true,
-    length: 500,
+    length: 100,
   })
   taxCode: string | null;
 
-  @Column('nvarchar', { name: 'Name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
   name: string | null;
 
-  @Column('nvarchar', { name: 'Description', nullable: true, length: 4000 })
+  @Column('text', { name: 'Description', nullable: true })
   description: string | null;
 
   @Column('datetime', {
     name: 'CreatedAt',
     nullable: true,
-    default: () => 'getdate()',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date | null;
 
   @Column('datetime', {
     name: 'UpdatedAt',
     nullable: true,
-    default: () => 'getdate()',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date | null;
 
   @Column('datetime', { name: 'DeletedAt', nullable: true })
   deletedAt: Date | null;
 
-  @Column('nvarchar', { name: 'Representative', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Representative', nullable: true, length: 500 })
   representative: string | null;
 
-  @Column('nvarchar', { name: 'MainBusiness', nullable: true, length: 500 })
+  @Column('varchar', { name: 'MainBusiness', nullable: true, length: 500 })
   mainBusiness: string | null;
 
-  @Column('nvarchar', { name: 'Address', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Address', nullable: true, length: 500 })
   address: string | null;
 
   @Column('datetime', { name: 'IssuedAt', nullable: true })
   issuedAt: Date | null;
 
-  @Column('nvarchar', { name: 'CurrentStatus', nullable: true, length: 500 })
+  @Column('varchar', { name: 'CurrentStatus', nullable: true, length: 500 })
   currentStatus: string | null;
 
-  @Column('nvarchar', { name: 'AlternateName', nullable: true, length: 500 })
+  @Column('varchar', { name: 'AlternateName', nullable: true, length: 500 })
   alternateName: string | null;
 
   @Column('bigint', { name: 'ProvinceId', nullable: true })
@@ -76,29 +67,25 @@ export class Company {
   @Column('bigint', { name: 'MainBusinessId', nullable: true })
   mainBusinessId: number | null;
 
-  @Column('nvarchar', { name: 'Slug', nullable: true, length: 2048 })
+  @Column('varchar', { name: 'Slug', nullable: true, length: 2048 })
   slug: string | null;
 
   @Column('bigint', { name: 'WardId', nullable: true })
   wardId: number | null;
 
-  @Column('nvarchar', {
-    name: 'FormattedAddress',
-    nullable: true,
-    length: 4000,
-  })
+  @Column('text', { name: 'FormattedAddress', nullable: true })
   formattedAddress: string | null;
 
-  @Column('nvarchar', { name: 'ProvinceName', nullable: true, length: 255 })
+  @Column('varchar', { name: 'ProvinceName', nullable: true, length: 255 })
   provinceName: string | null;
 
-  @Column('nvarchar', { name: 'DistrictName', nullable: true, length: 255 })
+  @Column('varchar', { name: 'DistrictName', nullable: true, length: 255 })
   districtName: string | null;
 
-  @Column('nvarchar', { name: 'WardName', nullable: true, length: 255 })
+  @Column('varchar', { name: 'WardName', nullable: true, length: 255 })
   wardName: string | null;
 
-  @Column('bit', { name: 'IsCrawledFull', nullable: true })
+  @Column('tinyint', { name: 'IsCrawledFull', nullable: true, width: 1 })
   isCrawledFull: boolean | null;
 
   @OneToMany(
@@ -106,18 +93,4 @@ export class Company {
     (companyBusinessMapping) => companyBusinessMapping.company,
   )
   companyBusinessMappings: CompanyBusinessMapping[];
-
-  @ManyToMany(() => Business)
-  @JoinTable({
-    name: 'CompanyBusinessMapping',
-    joinColumn: {
-      name: 'companyId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'businessId',
-      referencedColumnName: 'id',
-    },
-  })
-  businesses: Business[];
 }

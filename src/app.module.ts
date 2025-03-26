@@ -18,7 +18,7 @@ import { AreaModule as AreaModule } from './area/area.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mssql',
+      type: 'mysql',
       host: DB_HOST,
       port: DB_PORT,
       username: DB_USER,

@@ -3,12 +3,10 @@ name: Node.js and Docker Build
 on:
   push:
     branches:
-      - main
-      - dev
+      - mysql
   pull_request:
     branches:
-      - main
-      - dev
+      - mysql
 
 env:
   COMMIT_SHA: ${{ github.sha }}
@@ -54,5 +52,5 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/ttdn:latest
+            ${{ secrets.DOCKER_USERNAME }}/ttdn:mysql
             ${{ secrets.DOCKER_USERNAME }}/ttdn:${{ env.COMMIT_SHA }}

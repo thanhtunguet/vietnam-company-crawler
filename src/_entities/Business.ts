@@ -1,36 +1,35 @@
 import { Column, Entity, Index } from 'typeorm';
 
-@Index('Business_Id_Code_Name_index', ['id', 'code', 'name'], {})
-@Index('Business_pk', ['id'], { unique: true })
+@Index('Code', ['code'], { unique: true })
 @Index('Business_pk2', ['code'], { unique: true })
-@Index('UQ_c16db0121cee0db757496b7b8d5', ['code'], { unique: true })
-@Entity('Business', { schema: 'dbo' })
+@Index('Business_Id_Code_Name_index', ['id', 'code'], {})
+@Entity('Business', { schema: 'TTDN' })
 export class Business {
   @Column('bigint', { primary: true, name: 'Id' })
   id: number;
 
-  @Column('nvarchar', {
+  @Column('varchar', {
     name: 'Code',
     nullable: true,
     unique: true,
-    length: 500,
+    length: 100,
   })
   code: string | null;
 
-  @Column('nvarchar', { name: 'Name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
   name: string | null;
 
   @Column('datetime', {
     name: 'CreatedAt',
     nullable: true,
-    default: () => 'getdate()',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date | null;
 
   @Column('datetime', {
     name: 'UpdatedAt',
     nullable: true,
-    default: () => 'getdate()',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date | null;
 

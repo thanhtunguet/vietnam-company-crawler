@@ -3,7 +3,7 @@ import { Business, Company } from 'src/_entities';
 import { CompanyBusinessMappingDto } from './company-business-mapping.dto';
 
 export class CompanyDto implements Company {
-  businesses: Business[];
+  businesses?: Business[];
 
   @ApiProperty({ required: false, description: 'Company ID' })
   id: number;

@@ -10,6 +10,4 @@ export { District } from './District';
 
 export { Province } from './Province';
 
-export { ProvinceGroup } from './ProvinceGroup';
-
 export { Ward } from './Ward';

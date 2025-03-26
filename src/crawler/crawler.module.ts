@@ -8,7 +8,6 @@ import {
   CompanyBusinessMapping,
   CrawlerJob,
   Province,
-  ProvinceGroup,
 } from 'src/_entities';
 import { CrawlerJobHandler } from './crawler.job-handler';
 import { CrawlerService } from './crawler.service';
@@ -22,7 +21,6 @@ import { InfoRepository } from 'src/_repositories/info-repository';
       Province,
       Company,
       Province,
-      ProvinceGroup,
       Business,
       CompanyBusinessMapping,
     ]), // Register entities
