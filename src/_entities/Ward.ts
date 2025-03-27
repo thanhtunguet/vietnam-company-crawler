@@ -1,52 +1,57 @@
 import { Column, Entity, Index } from 'typeorm';
+import { Company } from './Company';
+import { District } from './District';
+import { Province } from './Province';
 
-@Index('Ward_Id_Code_Name_index', ['id', 'code', 'name'], {})
-@Entity('Ward', { schema: 'TTDN' })
+@Index('code', ['code'], { unique: true })
+@Index('district_id', ['districtId'], {})
+@Index('province_id', ['provinceId'], {})
+@Entity('ward', { schema: 'NEW_TTDN' })
 export class Ward {
-  @Column('bigint', { primary: true, name: 'Id' })
+  @Column('bigint', { primary: true, name: 'id' })
   id: number;
 
-  @Column('varchar', { name: 'Code', nullable: true, length: 100 })
-  code: string | null;
+  @Column('varchar', { name: 'code', unique: true, length: 100 })
+  code: string;
 
-  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'name', nullable: true, length: 500 })
   name: string | null;
 
-  @Column('varchar', { name: 'Type', nullable: true, length: 500 })
+  @Column('varchar', { name: 'type', nullable: true, length: 500 })
   type: string | null;
 
+  @Column('bigint', { name: 'district_id' })
+  districtId: number;
+
+  @Column('bigint', { name: 'province_id' })
+  provinceId: number;
+
+  @Column('varchar', { name: 'english_name', nullable: true, length: 500 })
+  englishName: string | null;
+
+  @Column('varchar', { name: 'slug', nullable: true, length: 255 })
+  slug: string | null;
+
   @Column('datetime', {
-    name: 'CreatedAt',
+    name: 'created_at',
     nullable: true,
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date | null;
 
   @Column('datetime', {
-    name: 'UpdatedAt',
+    name: 'updated_at',
     nullable: true,
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date | null;
 
-  @Column('datetime', { name: 'DeletedAt', nullable: true })
+  @Column('datetime', { name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
-  @Column('varchar', { name: 'DistrictName', nullable: true, length: 500 })
-  districtName: string | null;
+  companies: Company[];
 
-  @Column('varchar', { name: 'ProvinceName', nullable: true, length: 500 })
-  provinceName: string | null;
+  district: District;
 
-  @Column('varchar', { name: 'EnglishName', nullable: true, length: 500 })
-  englishName: string | null;
-
-  @Column('bigint', { name: 'DistrictId', nullable: true })
-  districtId: number | null;
-
-  @Column('bigint', { name: 'ProvinceId', nullable: true })
-  provinceId: number | null;
-
-  @Column('varchar', { name: 'Slug', nullable: true, length: 255 })
-  slug: string | null;
+  province: Province;
 }

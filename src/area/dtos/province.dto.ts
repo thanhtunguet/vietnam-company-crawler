@@ -1,7 +1,7 @@
-import { Province } from 'src/_entities';
 import { ApiProperty } from '@nestjs/swagger';
+import { Province } from 'src/_entities';
 
-export class ProvinceDto implements Province {
+export class ProvinceDto implements Partial<Province> {
   @ApiProperty({ type: Number })
   id: number;
 

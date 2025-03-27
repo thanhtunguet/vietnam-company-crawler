@@ -10,6 +10,7 @@ import { PartialJobDto } from './dtos/partial-job.dto';
 import { CrawlerJobStatus } from './types/CrawlerJobStatus';
 import { CrawlerJobType } from './types/CrawlerJobType';
 import { CrawlerTopic } from './types/CrawlerTopic';
+import { CrawlPageDto } from './dtos/crawl-page.dto';
 
 @ApiTags('Crawler')
 @Controller('/api/crawler')
@@ -70,9 +71,10 @@ export class CrawlerController {
 
   // Trigger Page Crawl
   @Post('page')
-  public async triggerPageCrawl(
-    @Body() body: { province: string; pageNumber: number },
-  ) {
+  @ApiBody({
+    type: CrawlPageDto,
+  })
+  public async triggerPageCrawl(@Body() body: CrawlPageDto) {
     const { province, pageNumber } = body;
 
     const job = this.crawlerJobRepository.create({

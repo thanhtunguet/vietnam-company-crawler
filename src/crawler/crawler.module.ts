@@ -5,9 +5,10 @@ import { CrawlerMqttService } from './crawler.mqtt.service';
 import {
   Business,
   Company,
-  CompanyBusinessMapping,
   CrawlerJob,
+  District,
   Province,
+  Ward,
 } from 'src/_entities';
 import { CrawlerJobHandler } from './crawler.job-handler';
 import { CrawlerService } from './crawler.service';
@@ -21,8 +22,9 @@ import { InfoRepository } from 'src/_repositories/info-repository';
       Province,
       Company,
       Province,
+      District,
+      Ward,
       Business,
-      CompanyBusinessMapping,
     ]), // Register entities
   ],
   providers: [

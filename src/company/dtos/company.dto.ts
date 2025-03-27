@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Business, Company } from 'src/_entities';
-import { CompanyBusinessMappingDto } from './company-business-mapping.dto';
 
-export class CompanyDto implements Company {
+export class CompanyDto implements Partial<Company> {
   businesses?: Business[];
 
   @ApiProperty({ required: false, description: 'Company ID' })
@@ -68,25 +67,9 @@ export class CompanyDto implements Company {
   @ApiProperty({ required: false, description: 'Formatted address' })
   formattedAddress: string;
 
-  @ApiProperty({ required: false, description: 'Province name' })
-  provinceName: string;
-
-  @ApiProperty({ required: false, description: 'District name' })
-  districtName: string;
-
-  @ApiProperty({ required: false, description: 'Ward name' })
-  wardName: string;
-
   @ApiProperty({
     required: false,
     description: 'Whether the company data has been fully crawled',
   })
   isCrawledFull: boolean;
-
-  @ApiProperty({
-    required: false,
-    description: 'Company business mappings',
-    type: [CompanyBusinessMappingDto],
-  })
-  companyBusinessMappings: CompanyBusinessMappingDto[];
 }

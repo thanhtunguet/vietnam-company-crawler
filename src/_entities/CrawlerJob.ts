@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 
-@Entity('CrawlerJob', { schema: 'TTDN' })
+@Entity('crawler_job', { schema: 'NEW_TTDN' })
 export class CrawlerJob {
   @Column('char', {
     primary: true,
@@ -41,4 +41,18 @@ export class CrawlerJob {
 
   @Column('longtext', { name: 'log', nullable: true })
   log: string | null;
+
+  @Column('datetime', {
+    name: 'created_at',
+    nullable: true,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date | null;
+
+  @Column('datetime', {
+    name: 'updated_at',
+    nullable: true,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: Date | null;
 }

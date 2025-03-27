@@ -1,5 +1,5 @@
 // crawler.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
@@ -9,17 +9,24 @@ import { SOURCE_URL, WEB_URL } from 'src/_config/dotenv';
 import {
   Business,
   Company,
-  CompanyBusinessMapping,
   CrawlerJob,
+  District,
   Province,
+  Ward,
 } from 'src/_entities';
 import { splitArrayByLength } from 'src/_helpers/array';
 import { vietnameseSlugify } from 'src/_helpers/slugify';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { retryRequest } from './crawler.utils';
 
 @Injectable()
-export class CrawlerService {
+export class CrawlerService implements OnModuleInit {
+  private provinces: Province[] = [];
+
+  private districts: District[] = [];
+
+  private wards: Ward[] = [];
+
   private static getCompanySlug(link: string) {
     return link
       .replace(WEB_URL, '')
@@ -33,6 +40,8 @@ export class CrawlerService {
   }
 
   public constructor(
+    private readonly dataSource: DataSource, // 👈 Injected here
+
     @InjectRepository(CrawlerJob)
     private readonly crawlerJobRepo: Repository<CrawlerJob>,
 
@@ -42,12 +51,22 @@ export class CrawlerService {
     @InjectRepository(Province)
     private readonly provinceRepository: Repository<Province>,
 
+    @InjectRepository(District)
+    private readonly districtRepository: Repository<District>,
+
+    @InjectRepository(Ward)
+    private readonly wardRepository: Repository<Ward>,
+
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
-
-    @InjectRepository(CompanyBusinessMapping)
-    private readonly companyBusinessMappingRepository: Repository<CompanyBusinessMapping>,
   ) {}
+
+  async onModuleInit() {
+    this.provinces = await this.provinceRepository.find();
+    this.districts = await this.districtRepository.find();
+    this.wards = await this.wardRepository.find();
+    console.log('Crawler service initialized');
+  }
 
   // Crawl all provinces
   public async crawlAll(
@@ -123,42 +142,7 @@ export class CrawlerService {
     } catch (error) {}
   }
 
-  private handleCompanyAddress(company: Company) {
-    const address = company.address || '';
-    if (!address) {
-      console.warn(`Company ${company.id} has an empty address.`);
-      return;
-    }
-
-    // Use the regex patterns
-    const addressParts = address.split(',').map((part) => part.trim());
-
-    const provincePart = addressParts[addressParts.length - 1] || '';
-    const districtPart = addressParts[addressParts.length - 2] || '';
-    const wardPart = addressParts[addressParts.length - 3] || '';
-
-    // Regex patterns
-    const provinceRegex = /(?:Tỉnh|Thành phố|TP)?\s*(.+)/i;
-    const districtRegex = /(?:Quận|Huyện|Thị xã|Thành phố|TP)?\s*(.+)/i;
-    const wardRegex = /(?:Phường|Xã|Thị trấn)?\s*(.+)/i;
-
-    // Extract names
-    const provinceMatch = provincePart.match(provinceRegex);
-    const districtMatch = districtPart.match(districtRegex);
-    const wardMatch = wardPart.match(wardRegex);
-
-    const provinceName = provinceMatch ? provinceMatch[1].trim() : provincePart;
-    const districtName = districtMatch ? districtMatch[1].trim() : districtPart;
-    const wardName = wardMatch ? wardMatch[1].trim() : wardPart;
-
-    company.provinceName = provinceName;
-    company.districtName = districtName;
-    company.wardName = wardName;
-
-    return company;
-  }
-
-  private async crawlCompanyByHtml(html: string) {
+  private async crawlCompanyByHtml(html: string): Promise<Company> {
     const $ = cheerio.load(html);
 
     const taxCode = $(
@@ -168,147 +152,130 @@ export class CrawlerService {
       .trim();
     const id = CrawlerService.getCompanyIdFromTaxCode(taxCode);
 
-    let newCompany: Company | null = await this.companyRepository.findOne({
-      where: {
-        id: id,
-      },
+    const existingCompany = await this.companyRepository.findOne({
+      where: { id },
     });
 
-    if (!newCompany) {
-      newCompany = this.companyRepository.create();
-      newCompany.id = id;
-      newCompany.taxCode = taxCode;
-    }
+    let company =
+      existingCompany ?? this.companyRepository.create({ id, taxCode });
 
-    newCompany.name = $(
+    // Basic Info
+    company.name = $(
       '.company-info-section .responsive-table-cell[itemprop="name"]',
     )
       .text()
       .trim();
-
-    newCompany.slug = CrawlerService.getCompanySlug(
+    company.slug = CrawlerService.getCompanySlug(
       $('link[rel="canonical"]').attr('href'),
     );
-
-    newCompany.alternateName = $(
+    company.alternateName = $(
       '.company-info-section .responsive-table-cell[itemprop="alternateName"]',
     )
       .text()
       .trim();
-
-    newCompany.description = $('.description[itemprop="description"]')
+    company.description = $('.description[itemprop="description"]')
       .text()
       .trim();
-
-    newCompany.address = $(
+    company.address = $(
       'div.company-info-section .responsive-table-cell[itemprop="address"]',
     )
       .text()
       .trim();
-
-    newCompany = this.handleCompanyAddress(newCompany);
-
-    newCompany.representative = $(
+    company.representative = $(
       'div.company-info-section .responsive-table-cell[itemprop="founder"]',
     )
       .text()
       .trim();
 
+    // Issue Date & Status
     $('.company-info-section .responsive-table-cell').each(function () {
-      const text = $(this).text().trim();
-
-      if (text.match(/Ngày cấp giấy phép:/)) {
+      const label = $(this).text().trim();
+      if (label.match(/Ngày cấp giấy phép:/)) {
         const date = $(this).next().text().trim();
-        newCompany.issuedAt = moment(date, 'DD/MM/YYYY').toDate();
-        return;
+        company.issuedAt = moment(date, 'DD/MM/YYYY').toDate();
       }
-
-      if (text.match(/Tình trạng hoạt động:/)) {
-        newCompany.currentStatus = $(this).next().text().trim();
-        return;
+      if (label.match(/Tình trạng hoạt động:/)) {
+        company.currentStatus = $(this).next().text().trim();
       }
     });
 
-    const businessChilds = $(
-      '.responsive-table.responsive-table-2cols.responsive-table-collapse.nnkd-table',
-    ).children();
+    company = this.handleCompanyAddress(company);
 
-    const businessArray = splitArrayByLength(
-      $(businessChilds).toArray().slice(2),
-      2,
-    );
+    // Parse Businesses
+    const businessElements = $('.responsive-table-2cols.nnkd-table')
+      .children()
+      .toArray()
+      .slice(2);
+    const businessArray = splitArrayByLength(businessElements, 2);
 
-    const existingBusinesses = await this.businessRepository.find();
-    const existingBusinessMap = Object.fromEntries(
+    const businessRepo = this.businessRepository;
+    const existingBusinesses = await businessRepo.find();
+    const existingBusinessMap = new Map(
       existingBusinesses.map((b) => [b.id, b]),
     );
 
-    let businesses: Business[] = [];
+    const businessesToUpsert: Business[] = [];
+    const relatedBusinesses: Business[] = [];
 
-    businessArray.forEach(([code, name]) => {
-      const business: Business = this.businessRepository.create();
+    for (const [codeEl, nameEl] of businessArray) {
+      const code = $(codeEl).text().trim();
+      const nameRaw = $(nameEl).text().trim();
+      const id = Number(code);
+      const name = nameRaw.replace(/\(Ngành chính\)/, '').trim();
 
-      business.code = $(code).text().trim();
-      business.id = Number(business.code);
-      business.name = $(name).text().trim();
+      const business: Business = businessRepo.create({ id, code, name });
 
-      if (business.name.match(/Ngành chính/)) {
-        business.name = business.name.replace(/\(Ngành chính\)/, '').trim();
-        newCompany.mainBusiness = business.name;
-        newCompany.mainBusinessId = business.id;
+      relatedBusinesses.push(business);
+      if (!existingBusinessMap.has(id)) {
+        businessesToUpsert.push(business);
       }
 
-      businesses = [...businesses, business];
-    });
-
-    const newBusinesses = businesses.filter(
-      (b) => !Object.prototype.hasOwnProperty.call(existingBusinessMap, b.id),
-    );
-
-    try {
-      await this.businessRepository.save(newBusinesses);
-      console.log(`Saved ${newBusinesses.length} businesses`);
-    } catch (error) {
-      console.log(error);
-      console.error(
-        `Error saving businesses with the following ids: ${newBusinesses
-          .map((b) => b.id)
-          .join(', ')}`,
-      );
+      if (nameRaw.includes('(Ngành chính)')) {
+        company.mainBusiness = name;
+        company.mainBusinessId = id;
+      }
     }
 
-    const companyBusinessMappings = businesses.map((business) => {
-      const mapping = this.companyBusinessMappingRepository.create();
-      mapping.companyId = newCompany.id;
-      mapping.businessId = business.id;
-      return mapping;
-    });
+    // 💥 Transactional Save
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
     try {
-      newCompany = await this.companyRepository.save(newCompany);
-      console.log(`Saved company ${newCompany.name}`);
-    } catch (error) {
-      await this.companyRepository.update(newCompany.id, newCompany);
-      console.error(`Error saving company`, error);
+      // Upsert businesses
+      if (businessesToUpsert.length > 0) {
+        await queryRunner.manager
+          .getRepository(Business)
+          .upsert(businessesToUpsert, ['id']);
+        console.log(`Upserted ${businessesToUpsert.length} new businesses`);
+      }
+
+      // Save or update company
+      company = await queryRunner.manager.getRepository(Company).save(company);
+
+      // Save company ↔ business mappings
+      for (const business of relatedBusinesses) {
+        await queryRunner.manager
+          .createQueryBuilder()
+          .insert()
+          .into('company_business_mapping')
+          .values({ company_id: company.id, business_id: business.id })
+          .orIgnore()
+          .execute();
+      }
+
+      await queryRunner.commitTransaction();
+      console.log(`Successfully committed data for company: ${company.name}`);
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      console.error('❌ Error during transactional save:', err);
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
 
-    try {
-      await this.companyBusinessMappingRepository.delete({
-        companyId: newCompany.id,
-      });
-      await this.companyBusinessMappingRepository.save(companyBusinessMappings);
-    } catch (error) {
-      console.error(error);
-      console.error(
-        `Error saving company business mappings with the following ids: ${companyBusinessMappings
-          .map((c) => c.businessId)
-          .join(', ')}`,
-      );
-    }
-
-    newCompany.companyBusinessMappings = companyBusinessMappings;
-
-    return newCompany;
+    company.businesses = relatedBusinesses;
+    return company;
   }
 
   // Crawl a company's detail page
@@ -483,5 +450,72 @@ export class CrawlerService {
         await progressCb(job, progress);
       }
     }
+  }
+
+  private handleCompanyAddress(company: Company) {
+    const address = company.address || '';
+
+    if (!address) {
+      console.warn(`Company ${company.id} has an empty address.`);
+      return;
+    }
+
+    // Use the regex patterns
+    const addressParts = address.split(',').map((part) => part.trim());
+
+    const provincePart = addressParts[addressParts.length - 1] || '';
+    const districtPart = addressParts[addressParts.length - 2] || '';
+    const wardPart = addressParts[addressParts.length - 3] || '';
+
+    // Regex patterns
+    const provinceRegex = /(?:Tỉnh|Thành phố|TP)?\s*(.+)/i;
+    const districtRegex = /(?:Quận|Huyện|Thị xã|Thành phố|TP)?\s*(.+)/i;
+    const wardRegex = /(?:Phường|Xã|Thị trấn)?\s*(.+)/i;
+
+    // Extract names
+    const provinceMatch = provincePart.match(provinceRegex);
+    const districtMatch = districtPart.match(districtRegex);
+    const wardMatch = wardPart.match(wardRegex);
+
+    const provinceName = provinceMatch ? provinceMatch[1].trim() : provincePart;
+    const districtName = districtMatch ? districtMatch[1].trim() : districtPart;
+    const wardName = wardMatch ? wardMatch[1].trim() : wardPart;
+
+    console.log(`${wardName} - ${districtName} - ${provinceName}`);
+
+    if (provinceName) {
+      const province = this.provinces.find((p) =>
+        vietnameseSlugify(provinceName.toLowerCase()).includes(
+          p.slug.replace(/(tinh|thanh-pho)\-/, ''),
+        ),
+      );
+      if (province) {
+        company.provinceId = province.id;
+      }
+    }
+
+    if (districtName) {
+      const district = this.districts.find((d) =>
+        vietnameseSlugify(districtName.toLowerCase()).includes(
+          d.slug.replace(/(quan|huyen|thi\-xa)\-/, ''),
+        ),
+      );
+      if (district) {
+        company.districtId = district.id;
+      }
+    }
+
+    if (wardName) {
+      const ward = this.wards.find((w) =>
+        vietnameseSlugify(wardName.toLowerCase()).includes(
+          w.slug.replace(/(xa|phuong|thi\-tran)\-/, ''),
+        ),
+      );
+      if (ward) {
+        company.wardId = ward.id;
+      }
+    }
+
+    return company;
   }
 }

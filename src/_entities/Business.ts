@@ -1,38 +1,34 @@
 import { Column, Entity, Index } from 'typeorm';
+import { Company } from './Company';
 
-@Index('Code', ['code'], { unique: true })
-@Index('Business_pk2', ['code'], { unique: true })
-@Index('Business_Id_Code_Name_index', ['id', 'code'], {})
-@Entity('Business', { schema: 'TTDN' })
+@Index('code', ['code'], { unique: true })
+@Entity('business', { schema: 'NEW_TTDN' })
 export class Business {
-  @Column('bigint', { primary: true, name: 'Id' })
+  @Column('bigint', { primary: true, name: 'id' })
   id: number;
 
-  @Column('varchar', {
-    name: 'Code',
-    nullable: true,
-    unique: true,
-    length: 100,
-  })
-  code: string | null;
+  @Column('varchar', { name: 'code', unique: true, length: 100 })
+  code: string;
 
-  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'name', nullable: true, length: 500 })
   name: string | null;
 
   @Column('datetime', {
-    name: 'CreatedAt',
+    name: 'created_at',
     nullable: true,
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date | null;
 
   @Column('datetime', {
-    name: 'UpdatedAt',
+    name: 'updated_at',
     nullable: true,
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date | null;
 
-  @Column('datetime', { name: 'DeletedAt', nullable: true })
+  @Column('datetime', { name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
+
+  companies: Company[];
 }
