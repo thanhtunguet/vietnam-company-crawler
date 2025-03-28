@@ -40,10 +40,7 @@ OneToMany(
 ManyToOne(
   () => Users,
   (users) => users.apiKeys,
-  {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  },
+  {},
 )(ApiKeys.prototype, 'user');
 
 JoinColumn([{ name: 'UserId', referencedColumnName: 'id' }])(
@@ -54,10 +51,7 @@ JoinColumn([{ name: 'UserId', referencedColumnName: 'id' }])(
 ManyToOne(
   () => ApiKeys,
   (apiKeys) => apiKeys.apiUsageTrackings,
-  {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  },
+  {},
 )(ApiUsageTracking.prototype, 'apiKey');
 
 JoinColumn([{ name: 'api_key_id', referencedColumnName: 'id' }])(
@@ -79,16 +73,12 @@ JoinTable({
   name: 'company_business_mapping',
   joinColumns: [{ name: 'CompanyId', referencedColumnName: 'id' }],
   inverseJoinColumns: [{ name: 'BusinessId', referencedColumnName: 'id' }],
-  schema: 'NEW_TTDN',
 })(Company.prototype, 'businesses');
 
 ManyToOne(
   () => Province,
   (province) => province.companies,
-  {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  },
+  {},
 )(Company.prototype, 'province');
 
 JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
@@ -99,10 +89,7 @@ JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
 ManyToOne(
   () => District,
   (district) => district.companies,
-  {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  },
+  {},
 )(Company.prototype, 'district');
 
 JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])(
@@ -113,10 +100,7 @@ JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])(
 ManyToOne(
   () => Ward,
   (ward) => ward.companies,
-  {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  },
+  {},
 )(Company.prototype, 'ward');
 
 JoinColumn([{ name: 'WardId', referencedColumnName: 'id' }])(
@@ -157,10 +141,7 @@ OneToMany(
 ManyToOne(
   () => Province,
   (province) => province.districts,
-  {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  },
+  {},
 )(District.prototype, 'province');
 JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
   District.prototype,
@@ -170,10 +151,7 @@ JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
 ManyToOne(
   () => District,
   (district) => district.wards,
-  {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  },
+  {},
 )(Ward.prototype, 'district');
 
 JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])(
@@ -184,10 +162,7 @@ JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])(
 ManyToOne(
   () => Province,
   (province) => province.wards,
-  {
-    onDelete: 'RESTRICT',
-    onUpdate: 'RESTRICT',
-  },
+  {},
 )(Ward.prototype, 'province');
 
 JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
