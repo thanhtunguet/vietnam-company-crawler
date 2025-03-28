@@ -1,20 +1,11 @@
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Repository } from 'react3l';
-import {
-  SOURCE_URL,
-  STATIC_SOURCE_URL,
-  STATIC_WEB_URL,
-  WEB_URL,
-} from './dotenv';
+import { SOURCE_URL, WEB_URL } from './dotenv';
 
 export const httpConfig: AxiosRequestConfig = {};
 
 function replaceHtml(html: string) {
-  return html
-    .split(SOURCE_URL)
-    .join(WEB_URL)
-    .split(STATIC_SOURCE_URL)
-    .join(STATIC_WEB_URL);
+  return html.split(SOURCE_URL).join(WEB_URL);
 }
 
 Repository.requestInterceptor = async (config: AxiosRequestConfig) => {

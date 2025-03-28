@@ -18,12 +18,9 @@ export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 export const OPENAI_MODEL = process.env.OPENAI_MODEL;
 
 export const SOURCE_URL = process.env.SOURCE_URL;
-export const STATIC_SOURCE_URL = process.env.STATIC_SOURCE_URL;
 export const WEB_URL = process.env.WEB_URL;
-export const STATIC_WEB_URL = process.env.STATIC_WEB_URL;
 export const MQTT_URL = process.env.MQTT_URL;
 
-export const MODE = process.env.MODE as AppMode;
 export const PORT = Number(process.env.PORT ?? 3000);
 export const SLEEP_GAP = Number(process.env.SLEEP_GAP ?? 500);
 export const SLEEP_MIN = Number(process.env.SLEEP_MIN ?? 500);

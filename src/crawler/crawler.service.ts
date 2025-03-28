@@ -220,7 +220,7 @@ export class CrawlerService implements OnModuleInit {
     for (const [codeEl, nameEl] of businessArray) {
       const code = $(codeEl).text().trim();
       const nameRaw = $(nameEl).text().trim();
-      const id = Number(code);
+      const id = Number(code.replace(/[A-Za-z]+/, ''));
       const name = nameRaw.replace(/\(Ngành chính\)/, '').trim();
 
       const business: Business = businessRepo.create({ id, code, name });
@@ -296,7 +296,7 @@ export class CrawlerService implements OnModuleInit {
     // const provinceCount = provinces.length;
     const companyCount = await this.companyRepository.count({
       where: {
-        provinceId: IsNull(),
+        provinceId: null,
       },
     });
     let completed = 0;
@@ -308,7 +308,7 @@ export class CrawlerService implements OnModuleInit {
         skip: i,
         take: CONCURRENT_NUMBER,
         where: {
-          provinceId: IsNull(),
+          provinceId: null,
         },
       });
       for (const company of companies) {
