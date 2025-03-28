@@ -16,7 +16,9 @@ export class AreaController {
     type: ProvinceDto,
     isArray: true,
   })
-  public async listProvinces(@Query() { skip, take }: QueryDto): Promise<ProvinceDto[]> {
+  public async listProvinces(
+    @Query() { skip, take }: QueryDto,
+  ): Promise<ProvinceDto[]> {
     return this.areaService.list({
       skip: skip || 0,
       take: take || 10,

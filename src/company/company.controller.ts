@@ -39,7 +39,7 @@ export class CompanyController {
   // Count number of company
   @Get('/count')
   @ApiResponse({
-    type: 'number',
+    type: Number,
   })
   public async count(
     @Query() queryDto: CompanyListPayloadDto,

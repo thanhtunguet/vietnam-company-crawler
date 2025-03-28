@@ -8,7 +8,6 @@ import {
   DB_USER,
 } from './_config/dotenv';
 import * as entities from './_entities';
-import { StaticRepository } from './_repositories/static-repository';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CrawlerModule } from './crawler/crawler.module';
@@ -35,7 +34,7 @@ import { AreaModule as AreaModule } from './area/area.module';
     CrawlerModule,
   ],
   controllers: [AppController],
-  providers: [AppService, StaticRepository],
+  providers: [AppService],
   exports: [],
 })
 export class AppModule {}
