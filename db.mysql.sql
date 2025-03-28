@@ -1,101 +1,203 @@
-CREATE TABLE Business (
-    Id BIGINT NOT NULL PRIMARY KEY,
-    Code VARCHAR(500) UNIQUE,
-    Name VARCHAR(500),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    DeletedAt DATETIME
+create table business
+(
+    id         bigint                               not null
+        primary key,
+    code       varchar(100)                         not null,
+    name       varchar(500)                         null,
+    created_at datetime default current_timestamp() null,
+    updated_at datetime default current_timestamp() null on update current_timestamp(),
+    deleted_at datetime                             null,
+    constraint code
+        unique (code)
 );
-CREATE UNIQUE INDEX Business_pk2 ON Business (Code);
-CREATE INDEX Business_Id_Code_Name_index ON Business (Id, Code, Name);
-CREATE TABLE Company (
-    Id BIGINT NOT NULL PRIMARY KEY,
-    TaxCode VARCHAR(500) UNIQUE,
-    Name VARCHAR(500),
-    Description TEXT,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    DeletedAt DATETIME,
-    Representative VARCHAR(500),
-    MainBusiness VARCHAR(500),
-    Address VARCHAR(500),
-    IssuedAt DATETIME,
-    CurrentStatus VARCHAR(500),
-    AlternateName VARCHAR(500),
-    ProvinceId BIGINT,
-    DistrictId BIGINT,
-    MainBusinessId BIGINT,
-    Slug VARCHAR(2048),
-    WardId BIGINT,
-    FormattedAddress TEXT,
-    ProvinceName VARCHAR(255),
-    DistrictName VARCHAR(255),
-    WardName VARCHAR(255),
-    IsCrawledFull BOOLEAN
+
+create table crawler_job
+(
+    id          char(36) default uuid()              not null
+        primary key,
+    type        varchar(20)                          not null,
+    status      varchar(20)                          not null,
+    progress    float    default 0                   null,
+    province    varchar(100)                         null,
+    page_number int                                  null,
+    company_url varchar(500)                         null,
+    started_at  datetime                             null,
+    finished_at datetime                             null,
+    log         longtext                             null,
+    created_at  datetime default current_timestamp() null,
+    updated_at  datetime default current_timestamp() null on update current_timestamp()
 );
-CREATE UNIQUE INDEX Company_pk2 ON Company (TaxCode);
-CREATE INDEX Company_Id_TaxCode_Name_index ON Company (Id, TaxCode, Name);
-CREATE TABLE CompanyBusinessMapping (
-    BusinessId BIGINT NOT NULL,
-    CompanyId BIGINT NOT NULL,
-    PRIMARY KEY (BusinessId, CompanyId),
-    FOREIGN KEY (CompanyId) REFERENCES Company(Id)
+
+create table province
+(
+    id           bigint                               not null
+        primary key,
+    code         varchar(100)                         not null,
+    name         varchar(500)                         null,
+    type         varchar(500)                         null,
+    english_name varchar(500)                         null,
+    slug         varchar(255)                         null,
+    created_at   datetime default current_timestamp() null,
+    updated_at   datetime default current_timestamp() null on update current_timestamp(),
+    deleted_at   datetime                             null,
+    constraint code
+        unique (code)
 );
-CREATE INDEX IDX_8479cf14fe5c41c38aa3e182d4 ON CompanyBusinessMapping (BusinessId);
-CREATE INDEX IDX_0d0acbceb7ea4e547ef5ba1abe ON CompanyBusinessMapping (CompanyId);
-CREATE TABLE CrawlerJob (
-    id CHAR(36) DEFAULT (UUID()) NOT NULL PRIMARY KEY,
-    type VARCHAR(20) NOT NULL,
-    status VARCHAR(20) NOT NULL,
-    progress FLOAT DEFAULT 0.0,
-    province VARCHAR(100),
-    page_number INT,
-    company_url VARCHAR(500),
-    started_at DATETIME,
-    finished_at DATETIME,
-    log LONGTEXT
+
+create table district
+(
+    id           bigint                               not null
+        primary key,
+    code         varchar(100)                         not null,
+    name         varchar(500)                         null,
+    type         varchar(500)                         null,
+    province_id  bigint                               not null,
+    english_name varchar(500)                         null,
+    slug         varchar(255)                         null,
+    created_at   datetime default current_timestamp() null,
+    updated_at   datetime default current_timestamp() null on update current_timestamp(),
+    deleted_at   datetime                             null,
+    constraint code
+        unique (code),
+    constraint district_ibfk_1
+        foreign key (province_id) references province (id)
 );
-CREATE TABLE District (
-    Id BIGINT NOT NULL PRIMARY KEY,
-    Code VARCHAR(500) UNIQUE,
-    Name VARCHAR(500),
-    Type VARCHAR(500),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    DeletedAt DATETIME,
-    ProvinceName VARCHAR(500),
-    EnglishName VARCHAR(500),
-    ProvinceId BIGINT,
-    Slug VARCHAR(255)
+
+create index province_id
+    on district (province_id);
+
+create table users
+(
+    id            bigint auto_increment
+        primary key,
+    email         varchar(255)                           not null,
+    password_hash varchar(255)                           not null,
+    name          varchar(255)                           null,
+    is_active     tinyint(1) default 1                   null,
+    created_at    datetime   default current_timestamp() null,
+    updated_at    datetime   default current_timestamp() null on update current_timestamp(),
+    constraint email
+        unique (email)
 );
-CREATE UNIQUE INDEX District_pk2 ON District (Code);
-CREATE INDEX District_Id_Code_Name_index ON District (Id, Code, Name);
-CREATE TABLE Province (
-    Id BIGINT NOT NULL PRIMARY KEY,
-    Code VARCHAR(500) UNIQUE,
-    Name VARCHAR(500),
-    Type VARCHAR(500),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    DeletedAt DATETIME,
-    EnglishName VARCHAR(500),
-    Slug VARCHAR(255)
+
+create table api_keys
+(
+    id            bigint auto_increment
+        primary key,
+    user_id       bigint                                  not null,
+    apiKey        char(64)                                not null,
+    plan          varchar(50) default 'free'              null,
+    request_limit int         default 500                 null,
+    requests_used int         default 0                   null,
+    is_active     tinyint(1)  default 1                   null,
+    created_at    datetime    default current_timestamp() null,
+    updated_at    datetime    default current_timestamp() null on update current_timestamp(),
+    constraint apiKey
+        unique (apiKey),
+    constraint api_keys_ibfk_1
+        foreign key (user_id) references users (id)
 );
-CREATE UNIQUE INDEX Province_pk2 ON Province (Code);
-CREATE INDEX Province_Id_Code_Name_index ON Province (Id, Code, Name);
-CREATE TABLE Ward (
-    Id BIGINT NOT NULL PRIMARY KEY,
-    Code VARCHAR(500),
-    Name VARCHAR(500),
-    Type VARCHAR(500),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    DeletedAt DATETIME,
-    DistrictName VARCHAR(500),
-    ProvinceName VARCHAR(500),
-    EnglishName VARCHAR(500),
-    DistrictId BIGINT,
-    ProvinceId BIGINT,
-    Slug VARCHAR(255)
+
+create index user_id
+    on api_keys (user_id);
+
+create table api_usage_tracking
+(
+    id            bigint auto_increment
+        primary key,
+    api_key_id    bigint                               not null,
+    endpoint      varchar(255)                         null,
+    response_time int                                  null,
+    status_code   int                                  null,
+    called_at     datetime default current_timestamp() null,
+    constraint api_usage_tracking_ibfk_1
+        foreign key (api_key_id) references api_keys (id)
 );
-CREATE INDEX Ward_Id_Code_Name_index ON Ward (Id, Code, Name);
+
+create index api_key_id
+    on api_usage_tracking (api_key_id);
+
+create table ward
+(
+    id           bigint                               not null
+        primary key,
+    code         varchar(100)                         not null,
+    name         varchar(500)                         null,
+    type         varchar(500)                         null,
+    district_id  bigint                               not null,
+    province_id  bigint                               not null,
+    english_name varchar(500)                         null,
+    slug         varchar(255)                         null,
+    created_at   datetime default current_timestamp() null,
+    updated_at   datetime default current_timestamp() null on update current_timestamp(),
+    deleted_at   datetime                             null,
+    constraint code
+        unique (code),
+    constraint ward_ibfk_1
+        foreign key (district_id) references district (id),
+    constraint ward_ibfk_2
+        foreign key (province_id) references province (id)
+);
+
+create table company
+(
+    id                bigint                               not null
+        primary key,
+    tax_code          varchar(100)                         null,
+    name              varchar(500)                         null,
+    description       text                                 null,
+    representative    varchar(500)                         null,
+    main_business     varchar(500)                         null,
+    address           varchar(500)                         null,
+    formatted_address text                                 null,
+    issued_at         datetime                             null,
+    current_status    varchar(500)                         null,
+    alternate_name    varchar(500)                         null,
+    slug              varchar(2048)                        null,
+    is_crawled_full   tinyint(1)                           null,
+    province_id       bigint                               null,
+    district_id       bigint                               null,
+    ward_id           bigint                               null,
+    main_business_id  bigint                               null,
+    created_at        datetime default current_timestamp() null,
+    updated_at        datetime default current_timestamp() null on update current_timestamp(),
+    deleted_at        datetime                             null,
+    constraint tax_code
+        unique (tax_code),
+    constraint company_ibfk_1
+        foreign key (province_id) references province (id),
+    constraint company_ibfk_2
+        foreign key (district_id) references district (id),
+    constraint company_ibfk_3
+        foreign key (ward_id) references ward (id)
+);
+
+create index district_id
+    on company (district_id);
+
+create index province_id
+    on company (province_id);
+
+create index ward_id
+    on company (ward_id);
+
+create table company_business_mapping
+(
+    company_id  bigint not null,
+    business_id bigint not null,
+    primary key (company_id, business_id),
+    constraint company_business_mapping_ibfk_1
+        foreign key (company_id) references company (id),
+    constraint company_business_mapping_ibfk_2
+        foreign key (business_id) references business (id)
+);
+
+create index business_id
+    on company_business_mapping (business_id);
+
+create index district_id
+    on ward (district_id);
+
+create index province_id
+    on ward (province_id);
+
