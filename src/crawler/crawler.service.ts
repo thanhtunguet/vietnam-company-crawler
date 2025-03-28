@@ -16,7 +16,7 @@ import {
 } from 'src/_entities';
 import { splitArrayByLength } from 'src/_helpers/array';
 import { vietnameseSlugify } from 'src/_helpers/slugify';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, In, IsNull, Repository } from 'typeorm';
 import { retryRequest } from './crawler.utils';
 
 @Injectable()
@@ -294,7 +294,11 @@ export class CrawlerService implements OnModuleInit {
     // const provinces = await this.getProvinces();
 
     // const provinceCount = provinces.length;
-    const companyCount = await this.companyRepository.count();
+    const companyCount = await this.companyRepository.count({
+      where: {
+        provinceId: IsNull(),
+      },
+    });
     let completed = 0;
 
     const CONCURRENT_NUMBER = 4;
@@ -303,6 +307,9 @@ export class CrawlerService implements OnModuleInit {
       const companies = await this.companyRepository.find({
         skip: i,
         take: CONCURRENT_NUMBER,
+        where: {
+          provinceId: IsNull(),
+        },
       });
       for (const company of companies) {
         try {
