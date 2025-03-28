@@ -4,90 +4,91 @@ import { District } from './District';
 import { Province } from './Province';
 import { Ward } from './Ward';
 
-@Index('tax_code', ['taxCode'], { unique: true })
-@Index('province_id', ['provinceId'], {})
-@Index('district_id', ['districtId'], {})
-@Index('ward_id', ['wardId'], {})
-@Entity('company', { schema: 'NEW_TTDN' })
+@Index('IX_Company_DistrictId', ['districtId'], {})
+@Index('IX_Company_ProvinceId', ['provinceId'], {})
+@Index('IX_Company_WardId', ['wardId'], {})
+@Index('PK__Company__3214EC0768C5DFE4', ['id'], { unique: true })
+@Index('UQ__Company__12945A285D205ACE', ['taxCode'], { unique: true })
+@Entity('Company', { schema: 'dbo' })
 export class Company {
-  @Column('bigint', { primary: true, name: 'id' })
+  @Column('bigint', { primary: true, name: 'Id' })
   id: number;
 
   @Column('varchar', {
-    name: 'tax_code',
+    name: 'TaxCode',
     nullable: true,
     unique: true,
     length: 100,
   })
   taxCode: string | null;
 
-  @Column('varchar', { name: 'name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
   name: string | null;
 
-  @Column('text', { name: 'description', nullable: true })
+  @Column('nvarchar', { name: 'Description', nullable: true })
   description: string | null;
 
-  @Column('varchar', { name: 'representative', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Representative', nullable: true, length: 500 })
   representative: string | null;
 
-  @Column('varchar', { name: 'main_business', nullable: true, length: 500 })
+  @Column('varchar', { name: 'MainBusiness', nullable: true, length: 500 })
   mainBusiness: string | null;
 
-  @Column('varchar', { name: 'address', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Address', nullable: true, length: 500 })
   address: string | null;
 
-  @Column('text', { name: 'formatted_address', nullable: true })
+  @Column('nvarchar', { name: 'FormattedAddress', nullable: true })
   formattedAddress: string | null;
 
-  @Column('datetime', { name: 'issued_at', nullable: true })
+  @Column('datetime2', { name: 'IssuedAt', nullable: true })
   issuedAt: Date | null;
 
-  @Column('varchar', { name: 'current_status', nullable: true, length: 500 })
+  @Column('varchar', { name: 'CurrentStatus', nullable: true, length: 500 })
   currentStatus: string | null;
 
-  @Column('varchar', { name: 'alternate_name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'AlternateName', nullable: true, length: 500 })
   alternateName: string | null;
 
-  @Column('varchar', { name: 'slug', nullable: true, length: 2048 })
+  @Column('varchar', { name: 'Slug', nullable: true, length: 2048 })
   slug: string | null;
 
-  @Column('tinyint', { name: 'is_crawled_full', nullable: true, width: 1 })
+  @Column('bit', { name: 'IsCrawledFull', nullable: true })
   isCrawledFull: boolean | null;
 
-  @Column('bigint', { name: 'province_id', nullable: true })
+  @Column('bigint', { name: 'ProvinceId', nullable: true })
   provinceId: number | null;
 
-  @Column('bigint', { name: 'district_id', nullable: true })
+  @Column('bigint', { name: 'DistrictId', nullable: true })
   districtId: number | null;
 
-  @Column('bigint', { name: 'ward_id', nullable: true })
+  @Column('bigint', { name: 'WardId', nullable: true })
   wardId: number | null;
 
-  @Column('bigint', { name: 'main_business_id', nullable: true })
+  @Column('bigint', { name: 'MainBusinessId', nullable: true })
   mainBusinessId: number | null;
 
-  @Column('datetime', {
-    name: 'created_at',
+  @Column('datetime2', {
+    name: 'CreatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   createdAt: Date | null;
 
-  @Column('datetime', {
-    name: 'updated_at',
+  @Column('datetime2', {
+    name: 'UpdatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   updatedAt: Date | null;
 
-  @Column('datetime', { name: 'deleted_at', nullable: true })
+  @Column('datetime2', { name: 'DeletedAt', nullable: true })
   deletedAt: Date | null;
 
-  businesses: Business[];
+  ward: Ward;
 
   province: Province;
 
   district: District;
 
-  ward: Ward;
+  businesses: Business[];
 }

@@ -1,35 +1,29 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiKeys } from './ApiKeys';
 
-@Index('api_key_id', ['apiKeyId'], {})
-@Entity('api_usage_tracking', { schema: 'NEW_TTDN' })
+@Index('IX_ApiUsageTracking_ApiKeyId', ['apiKeyId'], {})
+@Index('PK__ApiUsage__3214EC0753F6C0B6', ['id'], { unique: true })
+@Entity('ApiUsageTracking', { schema: 'dbo' })
 export class ApiUsageTracking {
-  @PrimaryGeneratedColumn({ type: 'bigint', name: 'id' })
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
-  @Column('bigint', { name: 'api_key_id' })
+  @Column('bigint', { name: 'ApiKeyId' })
   apiKeyId: number;
 
-  @Column('varchar', { name: 'endpoint', nullable: true, length: 255 })
+  @Column('varchar', { name: 'Endpoint', nullable: true, length: 255 })
   endpoint: string | null;
 
-  @Column('int', { name: 'response_time', nullable: true })
+  @Column('int', { name: 'ResponseTime', nullable: true })
   responseTime: number | null;
 
-  @Column('int', { name: 'status_code', nullable: true })
+  @Column('int', { name: 'StatusCode', nullable: true })
   statusCode: number | null;
 
-  @Column('datetime', {
-    name: 'called_at',
+  @Column('datetime2', {
+    name: 'CalledAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   calledAt: Date | null;
 

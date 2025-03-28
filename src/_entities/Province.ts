@@ -3,47 +3,48 @@ import { Company } from './Company';
 import { District } from './District';
 import { Ward } from './Ward';
 
-@Index('code', ['code'], { unique: true })
-@Entity('province', { schema: 'NEW_TTDN' })
+@Index('PK__Province__3214EC07D1C69C0F', ['id'], { unique: true })
+@Index('UQ__Province__A25C5AA72316968A', ['code'], { unique: true })
+@Entity('Province', { schema: 'dbo' })
 export class Province {
-  @Column('bigint', { primary: true, name: 'id' })
+  @Column('bigint', { primary: true, name: 'Id' })
   id: number;
 
-  @Column('varchar', { name: 'code', unique: true, length: 100 })
+  @Column('varchar', { name: 'Code', unique: true, length: 100 })
   code: string;
 
-  @Column('varchar', { name: 'name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
   name: string | null;
 
-  @Column('varchar', { name: 'type', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Type', nullable: true, length: 500 })
   type: string | null;
 
-  @Column('varchar', { name: 'english_name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'EnglishName', nullable: true, length: 500 })
   englishName: string | null;
 
-  @Column('varchar', { name: 'slug', nullable: true, length: 255 })
+  @Column('varchar', { name: 'Slug', nullable: true, length: 255 })
   slug: string | null;
 
-  @Column('datetime', {
-    name: 'created_at',
+  @Column('datetime2', {
+    name: 'CreatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   createdAt: Date | null;
 
-  @Column('datetime', {
-    name: 'updated_at',
+  @Column('datetime2', {
+    name: 'UpdatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   updatedAt: Date | null;
 
-  @Column('datetime', { name: 'deleted_at', nullable: true })
+  @Column('datetime2', { name: 'DeletedAt', nullable: true })
   deletedAt: Date | null;
 
   companies: Company[];
 
-  wards: Ward[];
-
   districts: District[];
+
+  wards: Ward[];
 }

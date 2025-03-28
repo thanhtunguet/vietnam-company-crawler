@@ -46,7 +46,7 @@ ManyToOne(
   },
 )(ApiKeys.prototype, 'user');
 
-JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])(
+JoinColumn([{ name: 'UserId', referencedColumnName: 'id' }])(
   ApiKeys.prototype,
   'user',
 );
@@ -77,8 +77,8 @@ ManyToMany(
 
 JoinTable({
   name: 'company_business_mapping',
-  joinColumns: [{ name: 'company_id', referencedColumnName: 'id' }],
-  inverseJoinColumns: [{ name: 'business_id', referencedColumnName: 'id' }],
+  joinColumns: [{ name: 'CompanyId', referencedColumnName: 'id' }],
+  inverseJoinColumns: [{ name: 'BusinessId', referencedColumnName: 'id' }],
   schema: 'NEW_TTDN',
 })(Company.prototype, 'businesses');
 
@@ -91,7 +91,7 @@ ManyToOne(
   },
 )(Company.prototype, 'province');
 
-JoinColumn([{ name: 'province_id', referencedColumnName: 'id' }])(
+JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
   Company.prototype,
   'province',
 );
@@ -105,7 +105,7 @@ ManyToOne(
   },
 )(Company.prototype, 'district');
 
-JoinColumn([{ name: 'district_id', referencedColumnName: 'id' }])(
+JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])(
   Company.prototype,
   'district',
 );
@@ -119,7 +119,7 @@ ManyToOne(
   },
 )(Company.prototype, 'ward');
 
-JoinColumn([{ name: 'ward_id', referencedColumnName: 'id' }])(
+JoinColumn([{ name: 'WardId', referencedColumnName: 'id' }])(
   Company.prototype,
   'ward',
 );
@@ -162,7 +162,7 @@ ManyToOne(
     onUpdate: 'RESTRICT',
   },
 )(District.prototype, 'province');
-JoinColumn([{ name: 'province_id', referencedColumnName: 'id' }])(
+JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
   District.prototype,
   'province',
 );
@@ -176,7 +176,7 @@ ManyToOne(
   },
 )(Ward.prototype, 'district');
 
-JoinColumn([{ name: 'district_id', referencedColumnName: 'id' }])(
+JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])(
   Ward.prototype,
   'district',
 );
@@ -190,7 +190,7 @@ ManyToOne(
   },
 )(Ward.prototype, 'province');
 
-JoinColumn([{ name: 'province_id', referencedColumnName: 'id' }])(
+JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
   Ward.prototype,
   'province',
 );

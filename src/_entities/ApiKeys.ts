@@ -2,21 +2,22 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiUsageTracking } from './ApiUsageTracking';
 import { Users } from './Users';
 
-@Index('apiKey', ['apiKey'], { unique: true })
-@Index('user_id', ['userId'], {})
-@Entity('api_keys', { schema: 'NEW_TTDN' })
+@Index('IX_ApiKeys_UserId', ['userId'], {})
+@Index('PK__ApiKeys__3214EC0729A82B89', ['id'], { unique: true })
+@Index('UQ__ApiKeys__A4E6E186EFCF8AD2', ['apiKey'], { unique: true })
+@Entity('ApiKeys', { schema: 'dbo' })
 export class ApiKeys {
-  @PrimaryGeneratedColumn({ type: 'bigint', name: 'id' })
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
-  @Column('bigint', { name: 'user_id' })
+  @Column('bigint', { name: 'UserId' })
   userId: number;
 
-  @Column('char', { name: 'apiKey', unique: true, length: 64 })
+  @Column('char', { name: 'ApiKey', unique: true, length: 64 })
   apiKey: string;
 
   @Column('varchar', {
-    name: 'plan',
+    name: 'Plan',
     nullable: true,
     length: 50,
     default: () => "'free'",
@@ -24,42 +25,33 @@ export class ApiKeys {
   plan: string | null;
 
   @Column('int', {
-    name: 'request_limit',
+    name: 'RequestLimit',
     nullable: true,
-    default: () => "'500'",
+    default: () => '(500)',
   })
   requestLimit: number | null;
 
-  @Column('int', {
-    name: 'requests_used',
-    nullable: true,
-    default: () => "'0'",
-  })
+  @Column('int', { name: 'RequestsUsed', nullable: true, default: () => '(0)' })
   requestsUsed: number | null;
 
-  @Column('tinyint', {
-    name: 'is_active',
-    nullable: true,
-    width: 1,
-    default: () => "'1'",
-  })
+  @Column('bit', { name: 'IsActive', nullable: true, default: () => '(1)' })
   isActive: boolean | null;
 
-  @Column('datetime', {
-    name: 'created_at',
+  @Column('datetime2', {
+    name: 'CreatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   createdAt: Date | null;
 
-  @Column('datetime', {
-    name: 'updated_at',
+  @Column('datetime2', {
+    name: 'UpdatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   updatedAt: Date | null;
 
-  apiUsageTrackings: ApiUsageTracking[];
-
   user: Users;
+
+  apiUsageTrackings: ApiUsageTracking[];
 }

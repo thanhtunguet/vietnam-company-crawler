@@ -1,58 +1,58 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
-@Entity('crawler_job', { schema: 'NEW_TTDN' })
+@Index('PK__CrawlerJ__3214EC07192F5F7A', ['id'], { unique: true })
+@Entity('CrawlerJob', { schema: 'dbo' })
 export class CrawlerJob {
-  @Column('char', {
+  @Column('uniqueidentifier', {
     primary: true,
-    name: 'id',
-    length: 36,
-    default: () => "'uuid()'",
+    name: 'Id',
+    default: () => 'newid()',
   })
   id: number;
 
-  @Column('varchar', { name: 'type', length: 20 })
+  @Column('varchar', { name: 'Type', length: 20 })
   type: string;
 
-  @Column('varchar', { name: 'status', length: 20 })
+  @Column('varchar', { name: 'Status', length: 20 })
   status: string;
 
   @Column('float', {
-    name: 'progress',
+    name: 'Progress',
     nullable: true,
-    precision: 12,
-    default: () => "'0'",
+    precision: 53,
+    default: () => '(0)',
   })
   progress: number | null;
 
-  @Column('varchar', { name: 'province', nullable: true, length: 100 })
+  @Column('varchar', { name: 'Province', nullable: true, length: 100 })
   province: string | null;
 
-  @Column('int', { name: 'page_number', nullable: true })
+  @Column('int', { name: 'PageNumber', nullable: true })
   pageNumber: number | null;
 
-  @Column('varchar', { name: 'company_url', nullable: true, length: 500 })
+  @Column('varchar', { name: 'CompanyUrl', nullable: true, length: 500 })
   companyUrl: string | null;
 
-  @Column('datetime', { name: 'started_at', nullable: true })
+  @Column('datetime2', { name: 'StartedAt', nullable: true })
   startedAt: Date | null;
 
-  @Column('datetime', { name: 'finished_at', nullable: true })
+  @Column('datetime2', { name: 'FinishedAt', nullable: true })
   finishedAt: Date | null;
 
-  @Column('longtext', { name: 'log', nullable: true })
+  @Column('nvarchar', { name: 'Log', nullable: true })
   log: string | null;
 
-  @Column('datetime', {
-    name: 'created_at',
+  @Column('datetime2', {
+    name: 'CreatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   createdAt: Date | null;
 
-  @Column('datetime', {
-    name: 'updated_at',
+  @Column('datetime2', {
+    name: 'UpdatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   updatedAt: Date | null;
 }

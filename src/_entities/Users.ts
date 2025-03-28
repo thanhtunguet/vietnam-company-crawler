@@ -1,49 +1,38 @@
-import {
-  Column,
-  Entity,
-  Index,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiKeys } from './ApiKeys';
 
-@Index('email', ['email'], { unique: true })
-@Entity('users', { schema: 'NEW_TTDN' })
+@Index('PK__Users__3214EC07B4EC9CC8', ['id'], { unique: true })
+@Index('UQ__Users__A9D10534BC442831', ['email'], { unique: true })
+@Entity('Users', { schema: 'dbo' })
 export class Users {
-  @PrimaryGeneratedColumn({ type: 'bigint', name: 'id' })
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
-  @Column('varchar', { name: 'email', unique: true, length: 255 })
+  @Column('varchar', { name: 'Email', unique: true, length: 255 })
   email: string;
 
-  @Column('varchar', { name: 'password_hash', length: 255 })
+  @Column('varchar', { name: 'PasswordHash', length: 255 })
   passwordHash: string;
 
-  @Column('varchar', { name: 'name', nullable: true, length: 255 })
+  @Column('varchar', { name: 'Name', nullable: true, length: 255 })
   name: string | null;
 
-  @Column('tinyint', {
-    name: 'is_active',
-    nullable: true,
-    width: 1,
-    default: () => "'1'",
-  })
+  @Column('bit', { name: 'IsActive', nullable: true, default: () => '(1)' })
   isActive: boolean | null;
 
-  @Column('datetime', {
-    name: 'created_at',
+  @Column('datetime2', {
+    name: 'CreatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   createdAt: Date | null;
 
-  @Column('datetime', {
-    name: 'updated_at',
+  @Column('datetime2', {
+    name: 'UpdatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   updatedAt: Date | null;
 
-  @OneToMany(() => ApiKeys, (apiKeys) => apiKeys.user)
   apiKeys: ApiKeys[];
 }

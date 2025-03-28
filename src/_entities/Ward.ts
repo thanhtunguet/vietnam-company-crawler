@@ -3,55 +3,56 @@ import { Company } from './Company';
 import { District } from './District';
 import { Province } from './Province';
 
-@Index('code', ['code'], { unique: true })
-@Index('district_id', ['districtId'], {})
-@Index('province_id', ['provinceId'], {})
-@Entity('ward', { schema: 'NEW_TTDN' })
+@Index('IX_Ward_DistrictId', ['districtId'], {})
+@Index('IX_Ward_ProvinceId', ['provinceId'], {})
+@Index('PK__Ward__3214EC07E7B250DE', ['id'], { unique: true })
+@Index('UQ__Ward__A25C5AA7035685E2', ['code'], { unique: true })
+@Entity('Ward', { schema: 'dbo' })
 export class Ward {
-  @Column('bigint', { primary: true, name: 'id' })
+  @Column('bigint', { primary: true, name: 'Id' })
   id: number;
 
-  @Column('varchar', { name: 'code', unique: true, length: 100 })
+  @Column('varchar', { name: 'Code', unique: true, length: 100 })
   code: string;
 
-  @Column('varchar', { name: 'name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
   name: string | null;
 
-  @Column('varchar', { name: 'type', nullable: true, length: 500 })
+  @Column('varchar', { name: 'Type', nullable: true, length: 500 })
   type: string | null;
 
-  @Column('bigint', { name: 'district_id' })
+  @Column('bigint', { name: 'DistrictId' })
   districtId: number;
 
-  @Column('bigint', { name: 'province_id' })
+  @Column('bigint', { name: 'ProvinceId' })
   provinceId: number;
 
-  @Column('varchar', { name: 'english_name', nullable: true, length: 500 })
+  @Column('varchar', { name: 'EnglishName', nullable: true, length: 500 })
   englishName: string | null;
 
-  @Column('varchar', { name: 'slug', nullable: true, length: 255 })
+  @Column('varchar', { name: 'Slug', nullable: true, length: 255 })
   slug: string | null;
 
-  @Column('datetime', {
-    name: 'created_at',
+  @Column('datetime2', {
+    name: 'CreatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   createdAt: Date | null;
 
-  @Column('datetime', {
-    name: 'updated_at',
+  @Column('datetime2', {
+    name: 'UpdatedAt',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'getdate()',
   })
   updatedAt: Date | null;
 
-  @Column('datetime', { name: 'deleted_at', nullable: true })
+  @Column('datetime2', { name: 'DeletedAt', nullable: true })
   deletedAt: Date | null;
 
   companies: Company[];
 
-  district: District;
-
   province: Province;
+
+  district: District;
 }
