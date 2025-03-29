@@ -20,6 +20,7 @@ export async function crawlProvince(
   const $ = cheerio.load(html);
 
   const lastPage = getLastPageNumber($);
+
   for (let page = 1; page <= lastPage; page++) {
     try {
       await this.crawlPage(job, province, page, progressCb, lastPage);

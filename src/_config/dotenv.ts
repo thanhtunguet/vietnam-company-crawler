@@ -19,3 +19,7 @@ export const SLEEP_MIN = Number(process.env.SLEEP_MIN ?? 100);
 export const CRAWLER_LOCAL_IPS: string[] = process.env.CRAWLER_LOCAL_IPS
   ? process.env.CRAWLER_LOCAL_IPS.split(',')
   : [];
+
+export const CRAWLER_CONCURRENT_JOBS = Number(
+  process.env.CRAWLER_CONCURRENT_JOBS ?? '4',
+);
