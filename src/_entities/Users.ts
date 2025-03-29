@@ -8,13 +8,13 @@ export class Users {
   @PrimaryGeneratedColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
-  @Column('varchar', { name: 'Email', unique: true, length: 255 })
+  @Column('nvarchar', { name: 'Email', unique: true, length: 255 })
   email: string;
 
-  @Column('varchar', { name: 'PasswordHash', length: 255 })
+  @Column('nvarchar', { name: 'PasswordHash', length: 255 })
   passwordHash: string;
 
-  @Column('varchar', { name: 'Name', nullable: true, length: 255 })
+  @Column('nvarchar', { name: 'Name', nullable: true, length: 255 })
   name: string | null;
 
   @Column('bit', { name: 'IsActive', nullable: true, default: () => '(1)' })

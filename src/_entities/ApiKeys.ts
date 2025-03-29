@@ -13,10 +13,10 @@ export class ApiKeys {
   @Column('bigint', { name: 'UserId' })
   userId: number;
 
-  @Column('char', { name: 'ApiKey', unique: true, length: 64 })
+  @Column('nvarchar', { name: 'ApiKey', unique: true, length: 64 })
   apiKey: string;
 
-  @Column('varchar', {
+  @Column('nvarchar', {
     name: 'Plan',
     nullable: true,
     length: 50,

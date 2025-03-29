@@ -14,7 +14,7 @@ export class Company {
   @Column('bigint', { primary: true, name: 'Id' })
   id: number;
 
-  @Column('varchar', {
+  @Column('nvarchar', {
     name: 'TaxCode',
     nullable: true,
     unique: true,
@@ -22,19 +22,19 @@ export class Company {
   })
   taxCode: string | null;
 
-  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'Name', nullable: true, length: 500 })
   name: string | null;
 
   @Column('nvarchar', { name: 'Description', nullable: true })
   description: string | null;
 
-  @Column('varchar', { name: 'Representative', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'Representative', nullable: true, length: 500 })
   representative: string | null;
 
-  @Column('varchar', { name: 'MainBusiness', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'MainBusiness', nullable: true, length: 500 })
   mainBusiness: string | null;
 
-  @Column('varchar', { name: 'Address', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'Address', nullable: true, length: 500 })
   address: string | null;
 
   @Column('nvarchar', { name: 'FormattedAddress', nullable: true })
@@ -43,13 +43,13 @@ export class Company {
   @Column('datetime2', { name: 'IssuedAt', nullable: true })
   issuedAt: Date | null;
 
-  @Column('varchar', { name: 'CurrentStatus', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'CurrentStatus', nullable: true, length: 500 })
   currentStatus: string | null;
 
-  @Column('varchar', { name: 'AlternateName', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'AlternateName', nullable: true, length: 500 })
   alternateName: string | null;
 
-  @Column('varchar', { name: 'Slug', nullable: true, length: 2048 })
+  @Column('nvarchar', { name: 'Slug', nullable: true, length: 2048 })
   slug: string | null;
 
   @Column('bit', { name: 'IsCrawledFull', nullable: true })

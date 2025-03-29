@@ -10,19 +10,19 @@ export class Province {
   @Column('bigint', { primary: true, name: 'Id' })
   id: number;
 
-  @Column('varchar', { name: 'Code', unique: true, length: 100 })
+  @Column('nvarchar', { name: 'Code', unique: true, length: 100 })
   code: string;
 
-  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'Name', nullable: true, length: 500 })
   name: string | null;
 
-  @Column('varchar', { name: 'Type', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'Type', nullable: true, length: 500 })
   type: string | null;
 
-  @Column('varchar', { name: 'EnglishName', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'EnglishName', nullable: true, length: 500 })
   englishName: string | null;
 
-  @Column('varchar', { name: 'Slug', nullable: true, length: 255 })
+  @Column('nvarchar', { name: 'Slug', nullable: true, length: 255 })
   slug: string | null;
 
   @Column('datetime2', {

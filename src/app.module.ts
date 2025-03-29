@@ -24,7 +24,7 @@ import { AreaModule as AreaModule } from './area/area.module';
       password: DB_PASSWORD,
       database: DB_NAME,
       entities: Object.values(entities),
-      synchronize: false,
+      synchronize: true,
       extra: {
         trustServerCertificate: true,
       },

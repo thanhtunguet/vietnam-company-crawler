@@ -8,10 +8,10 @@ export class Business {
   @Column('bigint', { primary: true, name: 'Id' })
   id: number;
 
-  @Column('varchar', { name: 'Code', unique: true, length: 100 })
+  @Column('nvarchar', { name: 'Code', unique: true, length: 100 })
   code: string;
 
-  @Column('varchar', { name: 'Name', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'Name', nullable: true, length: 500 })
   name: string | null;
 
   @Column('datetime2', {

@@ -11,7 +11,7 @@ export class ApiUsageTracking {
   @Column('bigint', { name: 'ApiKeyId' })
   apiKeyId: number;
 
-  @Column('varchar', { name: 'Endpoint', nullable: true, length: 255 })
+  @Column('nvarchar', { name: 'Endpoint', nullable: true, length: 255 })
   endpoint: string | null;
 
   @Column('int', { name: 'ResponseTime', nullable: true })

@@ -70,7 +70,7 @@ ManyToMany(
 )(Company.prototype, 'businesses');
 
 JoinTable({
-  name: 'company_business_mapping',
+  name: 'CompanyBusinessMapping',
   joinColumns: [{ name: 'CompanyId', referencedColumnName: 'id' }],
   inverseJoinColumns: [{ name: 'BusinessId', referencedColumnName: 'id' }],
 })(Company.prototype, 'businesses');

@@ -10,10 +10,10 @@ export class CrawlerJob {
   })
   id: number;
 
-  @Column('varchar', { name: 'Type', length: 20 })
+  @Column('nvarchar', { name: 'Type', length: 20 })
   type: string;
 
-  @Column('varchar', { name: 'Status', length: 20 })
+  @Column('nvarchar', { name: 'Status', length: 20 })
   status: string;
 
   @Column('float', {
@@ -24,13 +24,13 @@ export class CrawlerJob {
   })
   progress: number | null;
 
-  @Column('varchar', { name: 'Province', nullable: true, length: 100 })
+  @Column('nvarchar', { name: 'Province', nullable: true, length: 100 })
   province: string | null;
 
   @Column('int', { name: 'PageNumber', nullable: true })
   pageNumber: number | null;
 
-  @Column('varchar', { name: 'CompanyUrl', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'CompanyUrl', nullable: true, length: 500 })
   companyUrl: string | null;
 
   @Column('datetime2', { name: 'StartedAt', nullable: true })
