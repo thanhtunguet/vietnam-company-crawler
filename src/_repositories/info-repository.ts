@@ -26,7 +26,17 @@ export class InfoRepository extends Repository {
     }),
   );
 
-  private get axios() {
+  private get axios(): Axios {
+    if (this.agents.length === 0) {
+      return Axios.create({
+        headers: {
+          Referer: SOURCE_URL,
+          Origin: SOURCE_URL,
+          UserAgent: generateRandomUserAgent(),
+        },
+        baseURL: SOURCE_URL,
+      });
+    }
     const randomIndex = Math.floor(Math.random() * this.agents.length);
     return Axios.create(this.agents[randomIndex]);
   }
