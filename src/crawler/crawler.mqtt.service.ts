@@ -1,10 +1,18 @@
 // crawler.mqtt.service.ts
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import * as mqtt from 'mqtt';
 import { MQTT_URL } from 'src/_config/dotenv';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CrawlerJob } from 'src/_entities';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CrawlerMqttService implements OnModuleInit, OnModuleDestroy {
+  constructor(
+    @InjectRepository(CrawlerJob)
+    private readonly crawlerJobRepository: Repository<CrawlerJob>,
+  ) {}
+
   private client: mqtt.MqttClient;
 
   private readonly MQTT_BROKER_URL = MQTT_URL; // Update if needed

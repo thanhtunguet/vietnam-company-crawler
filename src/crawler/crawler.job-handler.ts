@@ -4,8 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CrawlerMqttService } from './crawler.mqtt.service';
 import { CrawlerJob } from 'src/_entities';
-import { CrawlerService } from './crawler.service';
 import { CrawlerJobStatus } from './types/CrawlerJobStatus';
+import { CrawlerService } from 'src/crawler/crawler-service';
+import { CrawlerJobType } from 'src/crawler/types/CrawlerJobType';
 
 @Injectable()
 export class CrawlerJobHandler implements OnModuleInit {
@@ -18,14 +19,14 @@ export class CrawlerJobHandler implements OnModuleInit {
     private readonly mqttService: CrawlerMqttService,
   ) {}
 
-  onModuleInit() {
+  public onModuleInit() {
     // Subscribe to job start topic
-    this.mqttService.subscribe('crawler/job/start', (payload) => {
-      this.handleJobMessage(payload);
+    this.mqttService.subscribe('crawler/job/start', async (payload) => {
+      await this.handleJobMessage(payload);
     });
   }
 
-  async handleJobMessage(payload: any) {
+  public readonly handleJobMessage = async (payload: any) => {
     const { type, jobId, payload: jobPayload } = payload;
 
     console.log(`[Job] Received job: ${type}, ID: ${jobId}`);
@@ -44,14 +45,14 @@ export class CrawlerJobHandler implements OnModuleInit {
 
       // Dispatch based on job type
       switch (type) {
-        case 'full':
+        case CrawlerJobType.FULL:
           await this.crawlerService.crawlAll(
             job,
             this.updateProgress.bind(this),
           );
           break;
 
-        case 'province':
+        case CrawlerJobType.PROVINCE:
           await this.crawlerService.crawlProvince(
             job,
             jobPayload.province,
@@ -59,7 +60,7 @@ export class CrawlerJobHandler implements OnModuleInit {
           );
           break;
 
-        case 'page':
+        case CrawlerJobType.PAGE:
           await this.crawlerService.crawlPage(
             job,
             jobPayload.province,
@@ -68,22 +69,22 @@ export class CrawlerJobHandler implements OnModuleInit {
           );
           break;
 
-        case 'detail':
+        case CrawlerJobType.DETAIL:
           await this.crawlerService.crawlCompanyDetail(
             job,
             jobPayload.companyUrl,
           );
           break;
 
-        case 'detail_full':
-          await this.crawlerService.crawlCompanyDetailFull(
+        case CrawlerJobType.DETAIL_FULL:
+          await this.crawlerService.syncCompanyDetails(
             job,
             this.updateProgress.bind(this),
           );
           break;
 
-        case 'partial_all':
-          await this.crawlerService.crawlNewestPagesAllProvinces(
+        case CrawlerJobType.PARTIAL_ALL:
+          await this.crawlerService.syncNewCompaniesForAllProvinces(
             job,
             jobPayload.pages,
             this.updateProgress.bind(this),
@@ -91,7 +92,7 @@ export class CrawlerJobHandler implements OnModuleInit {
           break;
 
         default:
-          throw new Error(`Unknown job type: ${type}`);
+          break;
       }
 
       // Mark job done
@@ -114,11 +115,14 @@ export class CrawlerJobHandler implements OnModuleInit {
         error: message,
       });
     }
-  }
+  };
 
-  public async updateProgress(job: CrawlerJob, progress: number) {
+  public readonly updateProgress = async (
+    job: CrawlerJob,
+    progress: number,
+  ) => {
     job.progress = progress;
     await this.crawlJobRepo.save(job);
     this.mqttService.publish(`crawler/job/progress/${job.id}`, { progress });
-  }
+  };
 }

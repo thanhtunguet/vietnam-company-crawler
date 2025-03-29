@@ -1,9 +1,6 @@
 // crawler.controller.ts
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CrawlerJob } from 'src/_entities';
-import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { CrawlerMqttService } from './crawler.mqtt.service';
 import { PartialJobDto } from './dtos/partial-job.dto';
@@ -11,18 +8,27 @@ import { CrawlerJobStatus } from './types/CrawlerJobStatus';
 import { CrawlerJobType } from './types/CrawlerJobType';
 import { CrawlerTopic } from './types/CrawlerTopic';
 import { CrawlPageDto } from './dtos/crawl-page.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CrawlerJob } from 'src/_entities';
+import { Repository } from 'typeorm';
+import { getAvailableLocalIPs } from 'src/_helpers/network';
 
 @ApiTags('Crawler')
 @Controller('/api/crawler')
 export class CrawlerController {
   public constructor(
+    private readonly mqttService: CrawlerMqttService,
     @InjectRepository(CrawlerJob)
     private readonly crawlerJobRepository: Repository<CrawlerJob>,
-    private readonly mqttService: CrawlerMqttService,
   ) {}
 
+  @Get('/local-addresses')
+  public async getLocalAddresses(): Promise<string[]> {
+    return getAvailableLocalIPs();
+  }
+
   // Trigger Full Crawl
-  @Post('full')
+  @Post('/full')
   public async triggerFullCrawl() {
     const job = this.crawlerJobRepository.create({
       id: uuidv4(),
@@ -44,7 +50,7 @@ export class CrawlerController {
   }
 
   // Trigger Province Crawl
-  @Post('province/:province')
+  @Post('/province/:province')
   public async triggerProvinceCrawl(@Param('province') province: string) {
     const job = this.crawlerJobRepository.create({
       id: uuidv4(),
@@ -70,7 +76,7 @@ export class CrawlerController {
   }
 
   // Trigger Page Crawl
-  @Post('page')
+  @Post('/page')
   @ApiBody({
     type: CrawlPageDto,
   })
@@ -102,7 +108,7 @@ export class CrawlerController {
   }
 
   // Trigger Detail Crawl Full
-  @Post('detail-all')
+  @Post('/detail-full')
   public async triggerDetailCrawlFull() {
     const job = this.crawlerJobRepository.create({
       id: uuidv4(),
@@ -126,7 +132,7 @@ export class CrawlerController {
   }
 
   // Trigger Detail Crawl
-  @Get('detail/:companyUrl')
+  @Get('/detail/:companyUrl')
   public async triggerDetailCrawl(@Param('companyUrl') companyUrl: string) {
     const job = this.crawlerJobRepository.create({
       id: uuidv4(),
@@ -152,7 +158,7 @@ export class CrawlerController {
   }
 
   // Get Job Status
-  @Get('status/:jobId')
+  @Get('/status/:jobId')
   public async getJobStatus(@Param('jobId') jobId: string) {
     const job = await this.crawlerJobRepository.findOne({
       where: { id: Number(jobId) },
@@ -171,7 +177,7 @@ export class CrawlerController {
     };
   }
 
-  @Post('partial-all')
+  @Post('/partial-all')
   @ApiBody({
     type: PartialJobDto,
   })
