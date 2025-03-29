@@ -13,8 +13,8 @@ export const WEB_URL = process.env.WEB_URL;
 export const MQTT_URL = process.env.MQTT_URL;
 
 export const PORT = Number(process.env.PORT ?? 3000);
-export const SLEEP_GAP = Number(process.env.SLEEP_GAP ?? 500);
-export const SLEEP_MIN = Number(process.env.SLEEP_MIN ?? 500);
+export const SLEEP_GAP = Number(process.env.SLEEP_GAP ?? 150);
+export const SLEEP_MIN = Number(process.env.SLEEP_MIN ?? 100);
 
 export const CRAWLER_LOCAL_IPS: string[] = process.env.CRAWLER_LOCAL_IPS
   ? process.env.CRAWLER_LOCAL_IPS.split(',')

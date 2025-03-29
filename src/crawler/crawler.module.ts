@@ -11,9 +11,9 @@ import {
   Ward,
 } from 'src/_entities';
 import { CrawlerJobHandler } from './crawler.job-handler';
-import { CrawlerService } from './crawler.service';
 import { CrawlerController } from './crawler.controller';
 import { InfoRepository } from 'src/_repositories/info-repository';
+import { CrawlerService } from './crawler-service';
 
 @Module({
   imports: [
