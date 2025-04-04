@@ -13,9 +13,9 @@ export async function syncNewCompaniesForAllProvinces(
   const totalTasks = provinces.length * numPages;
   let completedTasks = 0;
 
-  for (const { name } of provinces) {
+  for (const province of provinces) {
     for (let page = 1; page <= numPages; page++) {
-      await this.crawlPage(job, name, page);
+      await this.crawlPage(job, province, page);
       completedTasks++;
       const progress = parseFloat(
         ((completedTasks / totalTasks) * 100).toFixed(2),

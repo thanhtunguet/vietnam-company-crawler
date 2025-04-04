@@ -1,7 +1,7 @@
 import slugify from 'slugify';
 
-function _vietnameseSlugify(text) {
-  return text
+function _vietnameseSlugify(text: string) {
+  return (text ?? '')
     .toString()
     .normalize('NFD') // Decompose accents
     .replace(/[\u0300-\u036f]/g, '') // Remove accents and diacritics

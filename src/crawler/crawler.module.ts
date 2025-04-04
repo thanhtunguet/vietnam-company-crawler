@@ -14,6 +14,7 @@ import { CrawlerJobHandler } from './crawler.job-handler';
 import { CrawlerController } from './crawler.controller';
 import { InfoRepository } from 'src/_repositories/info-repository';
 import { CrawlerService } from './crawler-service';
+import { OpenaiModule } from 'src/openai/openai.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CrawlerService } from './crawler-service';
       Ward,
       Business,
     ]), // Register entities
+    OpenaiModule,
   ],
   providers: [
     CrawlerMqttService,

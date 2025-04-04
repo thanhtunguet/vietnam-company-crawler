@@ -22,6 +22,7 @@ import { crawlPage } from 'src/crawler/crawler-service/crawl-page';
 import { crawlCompanyDetails } from 'src/crawler/crawler-service/crawl-company-details';
 import { getProvinces } from 'src/crawler/crawler-service/get-provinces';
 import { InfoRepository } from 'src/_repositories/info-repository';
+import { OpenaiService } from 'src/openai/openai.service';
 
 @Injectable()
 export class CrawlerService implements OnModuleInit {
@@ -58,6 +59,7 @@ export class CrawlerService implements OnModuleInit {
     @InjectRepository(Business)
     public readonly businessRepository: Repository<Business>,
     public readonly infoRepository: InfoRepository,
+    public readonly openaiService: OpenaiService,
   ) {}
 
   public async onModuleInit() {

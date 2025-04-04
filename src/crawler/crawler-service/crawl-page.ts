@@ -4,17 +4,18 @@ import { retryRequest } from 'src/crawler/crawler.utils';
 import * as cheerio from 'cheerio';
 import { CrawlerService } from 'src/crawler/crawler-service/index';
 import { firstValueFrom } from 'rxjs';
+import { ProvinceInfo } from './get-provinces';
 
 export async function crawlPage(
   this: CrawlerService,
   job: CrawlerJob,
-  province: string,
+  province: ProvinceInfo,
   pageNumber: number,
   progressCb?: (job: CrawlerJob, progress: number) => Promise<void>,
   totalPages?: number,
 ) {
   const pageUrl = `${SOURCE_URL}/${province}/trang-${pageNumber}/`;
-  const html = await retryRequest(
+  const html: string = await retryRequest(
     () => firstValueFrom(this.infoRepository.crawlPage(pageUrl)),
     3,
   );

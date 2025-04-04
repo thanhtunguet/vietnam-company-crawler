@@ -13,6 +13,7 @@ import { AppService } from './app.service';
 import { CrawlerModule } from './crawler/crawler.module';
 import { CompanyModule } from './company/company.module';
 import { AreaModule as AreaModule } from './area/area.module';
+import { OpenaiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { AreaModule as AreaModule } from './area/area.module';
       password: DB_PASSWORD,
       database: DB_NAME,
       entities: Object.values(entities),
-      synchronize: true,
+      synchronize: false,
       extra: {
         trustServerCertificate: true,
       },
@@ -32,6 +33,7 @@ import { AreaModule as AreaModule } from './area/area.module';
     AreaModule,
     CompanyModule,
     CrawlerModule,
+    OpenaiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

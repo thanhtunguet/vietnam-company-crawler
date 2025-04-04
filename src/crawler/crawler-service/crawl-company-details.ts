@@ -10,7 +10,7 @@ export async function crawlCompanyDetails(
   companyUrl: string,
 ) {
   const fullUrl = `${SOURCE_URL}/thong-tin/${companyUrl}.html`;
-  const html = await retryRequest(
+  const html: string = await retryRequest(
     () => firstValueFrom(this.infoRepository.crawlPage(fullUrl)),
     3,
   );

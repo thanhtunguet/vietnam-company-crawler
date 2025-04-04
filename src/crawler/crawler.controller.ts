@@ -1,35 +1,53 @@
 // crawler.controller.ts
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CrawlerJob } from 'src/_entities';
+import { getAvailableLocalIPs } from 'src/_helpers/network';
+import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { CrawlerService } from './crawler-service';
 import { CrawlerMqttService } from './crawler.mqtt.service';
+import { CrawlPageDto } from './dtos/crawl-page.dto';
 import { PartialJobDto } from './dtos/partial-job.dto';
+import { ProvinceInfoDto } from './dtos/province-info.dto';
 import { CrawlerJobStatus } from './types/CrawlerJobStatus';
 import { CrawlerJobType } from './types/CrawlerJobType';
 import { CrawlerTopic } from './types/CrawlerTopic';
-import { CrawlPageDto } from './dtos/crawl-page.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CrawlerJob } from 'src/_entities';
-import { Repository } from 'typeorm';
-import { getAvailableLocalIPs } from 'src/_helpers/network';
+import { CrawlerTriggerResponseDto } from './dtos/crawler-trigger-response.dto';
 
 @ApiTags('Crawler')
 @Controller('/api/crawler')
 export class CrawlerController {
   public constructor(
     private readonly mqttService: CrawlerMqttService,
+    private readonly crawlerService: CrawlerService,
     @InjectRepository(CrawlerJob)
     private readonly crawlerJobRepository: Repository<CrawlerJob>,
   ) {}
 
+  @Get('/provinces')
+  @ApiResponse({
+    type: [ProvinceInfoDto],
+  })
+  public async getProvinces(): Promise<ProvinceInfoDto[]> {
+    return this.crawlerService.getProvinces();
+  }
+
   @Get('/local-addresses')
+  @ApiResponse({
+    type: [String],
+  })
   public async getLocalAddresses(): Promise<string[]> {
     return getAvailableLocalIPs();
   }
 
   // Trigger Full Crawl
   @Post('/full')
-  public async triggerFullCrawl() {
+  @ApiResponse({
+    type: CrawlerTriggerResponseDto,
+  })
+  public async triggerFullCrawl(): Promise<CrawlerTriggerResponseDto> {
     const job = this.crawlerJobRepository.create({
       id: uuidv4(),
       type: CrawlerJobType.FULL,
@@ -51,7 +69,12 @@ export class CrawlerController {
 
   // Trigger Province Crawl
   @Post('/province/:province')
-  public async triggerProvinceCrawl(@Param('province') province: string) {
+  @ApiResponse({
+    type: CrawlerTriggerResponseDto,
+  })
+  public async triggerProvinceCrawl(
+    @Param('province') province: string,
+  ): Promise<CrawlerTriggerResponseDto> {
     const job = this.crawlerJobRepository.create({
       id: uuidv4(),
       type: CrawlerJobType.PROVINCE,
@@ -77,10 +100,15 @@ export class CrawlerController {
 
   // Trigger Page Crawl
   @Post('/page')
+  @ApiResponse({
+    type: CrawlerTriggerResponseDto,
+  })
   @ApiBody({
     type: CrawlPageDto,
   })
-  public async triggerPageCrawl(@Body() body: CrawlPageDto) {
+  public async triggerPageCrawl(
+    @Body() body: CrawlPageDto,
+  ): Promise<CrawlerTriggerResponseDto> {
     const { province, pageNumber } = body;
 
     const job = this.crawlerJobRepository.create({
@@ -109,7 +137,10 @@ export class CrawlerController {
 
   // Trigger Detail Crawl Full
   @Post('/detail-full')
-  public async triggerDetailCrawlFull() {
+  @ApiResponse({
+    type: CrawlerTriggerResponseDto,
+  })
+  public async triggerDetailCrawlFull(): Promise<CrawlerTriggerResponseDto> {
     const job = this.crawlerJobRepository.create({
       id: uuidv4(),
       type: CrawlerJobType.DETAIL_FULL,
@@ -133,7 +164,12 @@ export class CrawlerController {
 
   // Trigger Detail Crawl
   @Get('/detail/:companyUrl')
-  public async triggerDetailCrawl(@Param('companyUrl') companyUrl: string) {
+  @ApiResponse({
+    type: CrawlerTriggerResponseDto,
+  })
+  public async triggerDetailCrawl(
+    @Param('companyUrl') companyUrl: string,
+  ): Promise<CrawlerTriggerResponseDto> {
     const job = this.crawlerJobRepository.create({
       id: uuidv4(),
       type: CrawlerJobType.DETAIL,
@@ -159,13 +195,20 @@ export class CrawlerController {
 
   // Get Job Status
   @Get('/status/:jobId')
-  public async getJobStatus(@Param('jobId') jobId: string) {
+  @ApiResponse({
+    type: CrawlerTriggerResponseDto,
+  })
+  public async getJobStatus(
+    @Param('jobId') jobId: string,
+  ): Promise<CrawlerTriggerResponseDto> {
+    const jobIdNumber = Number(jobId);
     const job = await this.crawlerJobRepository.findOne({
-      where: { id: Number(jobId) },
+      where: { id: jobIdNumber },
     });
     if (!job) {
-      return { message: 'Job not found', jobId };
+      return { message: 'Job not found', jobId: jobIdNumber };
     }
+
     return {
       jobId: job.id,
       type: job.type,

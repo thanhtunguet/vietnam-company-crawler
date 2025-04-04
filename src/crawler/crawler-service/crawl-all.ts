@@ -20,10 +20,11 @@ export async function crawlAll(
 
   for (let i = 0; i < provinceCount; i += CRAWLER_CONCURRENT_JOBS) {
     const chunks = provinces.slice(i, i + CRAWLER_CONCURRENT_JOBS);
+
     await Promise.all(
-      chunks.map(async ({ name }) => {
+      chunks.map(async (province) => {
         try {
-          await this.crawlProvince(job, name, progressCb);
+          await this.crawlProvince(job, province, progressCb);
           completed++;
           const progress = parseFloat(
             ((completed / provinceCount) * 100).toFixed(2),

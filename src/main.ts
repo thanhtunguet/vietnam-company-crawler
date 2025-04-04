@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
-import { snakeCase } from 'react3l';
+import { snakeCase } from 'lodash';
 import { description, name, version } from '../package.json';
 import { PORT } from './_config/dotenv';
 import { AppModule } from './app.module';
