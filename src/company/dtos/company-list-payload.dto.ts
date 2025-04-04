@@ -7,4 +7,16 @@ export class CompanyListPayloadDto extends QueryDto {
     required: false,
   })
   public provinceId?: number;
+
+  @ApiProperty({
+    type: 'number',
+    required: false,
+  })
+  public districtId?: number;
+
+  @ApiProperty({
+    type: 'number',
+    required: false,
+  })
+  public wardId?: number;
 }

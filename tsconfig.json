@@ -6,7 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2021",
+    "target": "ESNext",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -18,6 +18,7 @@
     "strictBindCallApply": false,
     "strict": true,
     "moduleResolution": "node",
+    "isolatedModules": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
@@ -25,6 +26,9 @@
       "src/*": [
         "src/*"
       ]
-    }
+    },
+    "lib": [
+      "ESNext"
+    ]
   }
 }

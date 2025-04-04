@@ -2,3 +2,14 @@ node_modules/
 .git/
 .env
 .dockerignore
+*.sql
+*.log
+generate.sh
+dvhc/
+cronjob/
+docker-compose.yml
+docker-compose.override.yml
+docker-compose.prod.yml
+docker-compose.prod.override.yml
+docker-compose.dev.yml
+docker-compose.dev.override.yml

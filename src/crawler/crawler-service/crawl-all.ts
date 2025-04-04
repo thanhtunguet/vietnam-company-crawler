@@ -32,7 +32,7 @@ export async function crawlAll(
           await progressCb(job, progress);
           await sleep(Math.random() * SLEEP_GAP + SLEEP_MIN);
         } catch (error) {
-          console.error(`Error crawling province ${name}`, error);
+          console.error(`Error crawling province ${province.name}`, error);
         }
       }),
     );

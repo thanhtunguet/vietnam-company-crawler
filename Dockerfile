@@ -8,4 +8,5 @@ RUN yarn install
 
 COPY dist ./dist
 
+ENTRYPOINT [ "/bin/sh" ]
 CMD ["yarn", "start:prod"]

@@ -1,9 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Business, Company } from 'src/_entities';
+import { BusinessDto } from './business.dto';
 
-export class CompanyDto implements Partial<Company> {
-  businesses?: Business[];
-
+export class CompanyDto {
   @ApiProperty({ required: false, description: 'Company ID' })
   id: number;
 
@@ -72,4 +70,9 @@ export class CompanyDto implements Partial<Company> {
     description: 'Whether the company data has been fully crawled',
   })
   isCrawledFull: boolean;
+
+  @ApiProperty({
+    type: [BusinessDto],
+  })
+  businesses?: BusinessDto[];
 }

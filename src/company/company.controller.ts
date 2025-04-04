@@ -1,10 +1,10 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CompanyListPayloadDto } from 'src/company/dtos/company-list-payload.dto';
+import { CompanyDto } from 'src/_dtos/company.dto';
 import { Company } from 'src/_entities';
 import { Repository } from 'typeorm';
-import { CompanyListPayloadDto } from './dtos/company-list-payload.dto';
-import { CompanyDto } from './dtos/company.dto';
 
 @ApiTags('Company')
 @Controller('/api/company')
@@ -14,7 +14,6 @@ export class CompanyController {
     private readonly companyRepository: Repository<Company>,
   ) {}
 
-  // Get list of company with skip-take
   @Get('/list')
   @ApiResponse({
     type: CompanyDto,
@@ -23,14 +22,26 @@ export class CompanyController {
   public async list(
     @Query() queryDto: CompanyListPayloadDto,
   ): Promise<CompanyDto[]> {
-    const { skip = 0, take = 10, provinceId } = queryDto;
+    const { skip = 0, take = 10, provinceId, districtId, wardId } = queryDto;
 
     return this.companyRepository.find({
-      where: provinceId
-        ? {
-            provinceId,
-          }
-        : undefined,
+      where: [
+        provinceId
+          ? {
+              provinceId,
+            }
+          : undefined,
+        districtId
+          ? {
+              districtId,
+            }
+          : undefined,
+        wardId
+          ? {
+              wardId,
+            }
+          : undefined,
+      ],
       skip,
       take,
     });
@@ -44,13 +55,28 @@ export class CompanyController {
   public async count(
     @Query() queryDto: CompanyListPayloadDto,
   ): Promise<number> {
-    const { provinceId } = queryDto;
+    const { skip = 0, take = 10, provinceId, districtId, wardId } = queryDto;
+
     return this.companyRepository.count({
-      where: provinceId
-        ? {
-            provinceId,
-          }
-        : undefined,
+      where: [
+        provinceId
+          ? {
+              provinceId,
+            }
+          : undefined,
+        districtId
+          ? {
+              districtId,
+            }
+          : undefined,
+        wardId
+          ? {
+              wardId,
+            }
+          : undefined,
+      ],
+      skip,
+      take,
     });
   }
 
@@ -62,7 +88,7 @@ export class CompanyController {
   public async get(
     @Param('idOrTaxCode') idOrTaxCode: string,
   ): Promise<CompanyDto> {
-    return this.companyRepository.findOne({
+    const company = await this.companyRepository.findOne({
       where: [
         {
           id: Number(idOrTaxCode),
@@ -71,7 +97,18 @@ export class CompanyController {
           taxCode: idOrTaxCode,
         },
       ],
-      relations: ['businesses'],
+      relations: ['businesses', 'province', 'district', 'ward'],
     });
+    if (!company) {
+      return null;
+    }
+    return {
+      ...company,
+      businesses: company.businesses.map((business) => ({
+        id: business.id,
+        code: business.code,
+        name: business.name,
+      })),
+    };
   }
 }

@@ -14,6 +14,7 @@ import { CrawlerModule } from './crawler/crawler.module';
 import { CompanyModule } from './company/company.module';
 import { AreaModule as AreaModule } from './area/area.module';
 import { OpenaiModule } from './openai/openai.module';
+import { BusinessModule } from './business/business.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { OpenaiModule } from './openai/openai.module';
       },
     }),
     AreaModule,
+    BusinessModule,
     CompanyModule,
     CrawlerModule,
     OpenaiModule,
