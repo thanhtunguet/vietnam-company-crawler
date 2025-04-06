@@ -1,125 +1,163 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import Handlebars from 'handlebars';
+import { EnvironmentVariables } from 'src/_types/EnvironmentVariables';
 import { OpenAI } from 'openai';
-import { Model } from 'openai/resources/models';
-import { District, Province, Ward } from 'src/_entities';
-import { vietnameseSlugify } from 'src/_helpers/slugify';
-import { Repository } from 'typeorm';
-import { DetailedAddressDto } from './dtos/detailed_address.dto';
-import adderssParsingPrompt from './prompts/address_parsing_prompt.md';
-import addressParsingSystemPrompt from './prompts/address_parsing_system_prompt.md';
+import companyPrompt from './prompts/company.md';
+import HandleBars from 'handlebars';
 
 @Injectable()
-export class OpenaiService implements OnModuleInit {
-  private get openaiConfig() {
-    return {
-      baseUrl: this.configService.get<string>('OPENAI_BASE_URL'),
-      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
-      model: this.configService.get<string>('OPENAI_MODEL'),
-    };
-  }
-
-  private provinces: Province[] = [];
-
-  async onModuleInit() {
-    this.provinces = await this.provinceRepository.find({
-      relations: ['districts', 'districts.wards'],
-    });
-
-    console.log('Administrative addresses loaded');
-  }
+export class OpenaiService {
+  private openai: OpenAI;
 
   constructor(
-    private readonly configService: ConfigService,
-    @InjectRepository(Province)
-    private readonly provinceRepository: Repository<Province>,
-    @InjectRepository(District)
-    private readonly districtRepository: Repository<District>,
-    @InjectRepository(Ward)
-    private readonly wardRepository: Repository<Ward>,
-  ) {}
-
-  public async listModels(): Promise<Model[]> {
-    const openai = new OpenAI(this.openaiConfig);
-
-    const response = await openai.models.list();
-
-    return response.data;
-  }
-
-  private createOpenAIClient() {
-    const openai = new OpenAI(this.openaiConfig);
-    return openai;
-  }
-
-  private compilePrompt(template: string, args?: Record<string, any>) {
-    return Handlebars.compile(template)(args ?? {});
-  }
-
-  public async parseAddress(address: string): Promise<DetailedAddressDto> {
-    const openai = this.createOpenAIClient();
-
-    const prompt = this.compilePrompt(adderssParsingPrompt, {
-      address,
+    private readonly configService: ConfigService<EnvironmentVariables>,
+  ) {
+    this.openai = new OpenAI({
+      baseURL: configService.get<string>('OPENAI_BASE_URL'),
+      apiKey: configService.get<string>('OPENAI_API_KEY'),
+      maxRetries: 3,
     });
+  }
 
-    const response = await openai.chat.completions.create({
-      model: this.openaiConfig.model,
+  public async parseCompany(text: string) {
+    const prompt = HandleBars.compile(companyPrompt)({
+      text,
+    });
+    const response = await this.openai.chat.completions.create({
       messages: [
-        { role: 'system', content: addressParsingSystemPrompt },
-        { role: 'user', content: prompt },
-        // { role: 'user', content: `${addressParsingSystemPrompt}\n${prompt}` },
+        {
+          role: 'user',
+          content: prompt,
+        },
       ],
       response_format: {
         type: 'json_schema',
         json_schema: {
-          name: 'parsed_address',
-          description: 'Parsed address',
-          schema: {
-            type: 'object',
-            properties: {
-              province: { type: 'string' },
-              district: { type: 'string' },
-              ward: { type: 'string' },
-              address: { type: 'string' },
-            },
-          },
+          name: 'company',
+          schema: this.companySchema,
         },
       },
+      model: this.configService.get<string>('OPENAI_MODEL'),
+      temperature: 0,
     });
 
-    const detailedAddress = JSON.parse(
-      response.choices[0].message.content,
-    ) as DetailedAddressDto;
-    const provinceSlug = vietnameseSlugify(
-      detailedAddress.province?.replace(/Tỉnh|Thành phố|TP\./i, '').trim(),
-    );
-    const districtSlug = vietnameseSlugify(
-      detailedAddress.district?.replace(/Quận|Huyện|Thị Xã/i, '').trim(),
-    );
-    const wardSlug = vietnameseSlugify(
-      detailedAddress.ward?.replace(/Xã|Phường|Thị Trấn/i, '').trim(),
-    );
-    const province = this.provinces.find((province) =>
-      province.slug.includes(provinceSlug),
-    );
-    if (province) {
-      detailedAddress.provinceId = province.id;
-      const district = province.districts.find((district) =>
-        district.slug.includes(districtSlug),
-      );
-      if (district) {
-        detailedAddress.districtId = district.id;
-        const ward = district.wards.find((ward) =>
-          ward.slug.includes(wardSlug),
-        );
-        if (ward) {
-          detailedAddress.wardId = ward.id;
-        }
-      }
-    }
-    return detailedAddress;
+    return response.choices[0].message.content;
   }
+
+  private readonly companySchema = {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'integer',
+        description: 'Unique identifier for the company',
+      },
+      code: {
+        type: 'string',
+        description: 'Company code or registration number',
+      },
+      name: {
+        type: 'string',
+        description: 'Full official name of the company',
+      },
+      englishName: {
+        type: 'string',
+        description: 'English version of the company name if available',
+      },
+      representative: {
+        type: 'string',
+        description: 'Name of the legal representative',
+      },
+      representativePhoneNumber: {
+        type: 'string',
+        description: 'Contact phone number of the legal representative',
+      },
+      phoneNumber: {
+        type: 'string',
+        description: 'Main contact phone number of the company',
+      },
+      address: {
+        type: 'string',
+        description: 'Full physical address of the company headquarters',
+      },
+      issuedAt: {
+        type: 'string',
+        description:
+          'Date when the business registration was issued, in ISO format or DD/MM/YYYY',
+      },
+      terminatedAt: {
+        type: ['string', 'null'],
+        description: 'Date when the company was terminated, if applicable',
+      },
+      numberOfStaffs: {
+        type: 'string',
+        description: 'Number of employees in the company',
+      },
+      currentStatus: {
+        type: 'string',
+        description: 'Current operational status of the company',
+      },
+      createdAt: {
+        type: 'string',
+        format: 'date-time',
+        description: 'Timestamp when the company record was created',
+      },
+      updatedAt: {
+        type: 'string',
+        format: 'date-time',
+        description: 'Timestamp when the company record was last updated',
+      },
+      deletedAt: {
+        type: ['string', 'null'],
+        format: 'date-time',
+        description:
+          'Timestamp when the company record was soft deleted, if applicable',
+      },
+      director: {
+        type: 'string',
+        description: 'Name of the company director or CEO',
+      },
+      directorPhoneNumber: {
+        type: 'string',
+        description: 'Contact phone number of the director',
+      },
+      commencementDate: {
+        type: 'string',
+        format: 'date-time',
+        description: 'Date when the company started operations',
+      },
+      accountCreatedAt: {
+        type: 'string',
+        format: 'date-time',
+        description: 'Date when the company account was created in the system',
+      },
+      taxAuthority: {
+        type: 'string',
+        description: 'Name of the tax authority responsible for the company',
+      },
+      businessLines: {
+        type: 'array',
+        description:
+          'List of business activities the company is registered for',
+        items: {
+          type: 'object',
+          properties: {
+            code: {
+              type: 'string',
+              description: 'Business activity code',
+            },
+            name: {
+              type: 'string',
+              description: 'Description of the business activity',
+            },
+            isPrimary: {
+              type: 'boolean',
+              description: 'Indicates if this is the primary business activity',
+            },
+          },
+          required: ['code', 'name', 'isPrimary'],
+        },
+      },
+    },
+    required: ['name', 'code', 'address', 'currentStatus', 'businessLines'],
+  };
 }

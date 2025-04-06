@@ -1,45 +1,24 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { DetailedAddressDto } from './dtos/detailed_address.dto';
-import { OpenAiModelDto } from './dtos/openai_model.dto';
+import { Body, Controller, Post } from '@nestjs/common';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
+import axios from 'axios';
+import { load } from 'cheerio';
 import { OpenaiService } from './openai.service';
+import { CompanyParsingDto } from './dtos/company-parsing.dto';
 
 @ApiTags('OpenAI')
 @Controller('/api/openai')
 export class OpenaiController {
   constructor(private readonly openaiService: OpenaiService) {}
 
-  @Get('/models')
-  @ApiResponse({
-    status: 200,
-    description: 'List of available models',
-    type: [OpenAiModelDto],
-  })
-  public async listModels(): Promise<OpenAiModelDto[]> {
-    return this.openaiService.listModels();
-  }
-
-  @Post('/parse-address')
+  @Post('/test-parsing-company')
   @ApiBody({
-    description: 'Address to parse',
-    type: DetailedAddressDto,
+    description: 'Link to the company page',
+    type: CompanyParsingDto,
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Parsed address',
-    type: DetailedAddressDto,
-  })
-  public async parseAddress(@Body('address') address: string): Promise<{
-    province?: string;
-    district?: string;
-    ward?: string;
-    address?: string;
-  }> {
-    try {
-      return this.openaiService.parseAddress(address);
-    } catch (error) {
-      console.error(error);
-      return {};
-    }
+  public async testParsingCompany(@Body('link') link: string): Promise<string> {
+    const html = await axios.get(link).then((response) => response.data);
+    const $ = load(html);
+    const text = $('.m-panel').text().trim();
+    return this.openaiService.parseCompany(text);
   }
 }

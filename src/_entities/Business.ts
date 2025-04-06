@@ -1,18 +1,29 @@
-import { Column, Entity, Index } from 'typeorm';
-import { Company } from './Company';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { CompanyBusinessMapping } from './CompanyBusinessMapping';
 
-@Index('PK__Business__3214EC079D1C5B27', ['id'], { unique: true })
-@Index('UQ__Business__A25C5AA70C77E8C7', ['code'], { unique: true })
+@Index('Business_Code_Unique', ['code'], { unique: true })
+@Index('Business_pk', ['id'], { unique: true })
 @Entity('Business', { schema: 'dbo' })
 export class Business {
-  @Column('bigint', { primary: true, name: 'Id' })
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
-  @Column('nvarchar', { name: 'Code', unique: true, length: 100 })
+  @Column('nvarchar', { name: 'Code', unique: true, length: 10 })
   code: string;
 
-  @Column('nvarchar', { name: 'Name', nullable: true, length: 500 })
-  name: string | null;
+  @Column('nvarchar', { name: 'RootCode', nullable: true, length: 10 })
+  rootCode: string | null;
+
+  @Column('nvarchar', { name: 'Name', length: 255 })
+  name: string;
 
   @Column('datetime2', {
     name: 'CreatedAt',
@@ -31,5 +42,16 @@ export class Business {
   @Column('datetime2', { name: 'DeletedAt', nullable: true })
   deletedAt: Date | null;
 
-  companies: Company[];
+  @ManyToOne(() => Business, (business) => business.businesses)
+  @JoinColumn([{ name: 'ParentId', referencedColumnName: 'id' }])
+  parent: Business;
+
+  @OneToMany(() => Business, (business) => business.parent)
+  businesses: Business[];
+
+  @OneToMany(
+    () => CompanyBusinessMapping,
+    (companyBusinessMapping) => companyBusinessMapping.business,
+  )
+  companyBusinessMappings: CompanyBusinessMapping[];
 }

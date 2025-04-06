@@ -1,29 +1,26 @@
-import { Column, Entity, Index } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Company } from './Company';
 import { District } from './District';
-import { Ward } from './Ward';
+import { ProvinceCrawlingLog } from './ProvinceCrawlingLog';
 
-@Index('PK__Province__3214EC07D1C69C0F', ['id'], { unique: true })
-@Index('UQ__Province__A25C5AA72316968A', ['code'], { unique: true })
+@Index('Province_Code_Unique', ['code'], { unique: true })
+@Index('Province_pk', ['id'], { unique: true })
 @Entity('Province', { schema: 'dbo' })
 export class Province {
-  @Column('bigint', { primary: true, name: 'Id' })
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
-  @Column('nvarchar', { name: 'Code', unique: true, length: 100 })
+  @Column('nvarchar', { name: 'Code', unique: true, length: 10 })
   code: string;
 
-  @Column('nvarchar', { name: 'Name', nullable: true, length: 500 })
-  name: string | null;
-
-  @Column('nvarchar', { name: 'Type', nullable: true, length: 500 })
-  type: string | null;
-
-  @Column('nvarchar', { name: 'EnglishName', nullable: true, length: 500 })
-  englishName: string | null;
-
-  @Column('nvarchar', { name: 'Slug', nullable: true, length: 255 })
-  slug: string | null;
+  @Column('nvarchar', { name: 'Name', length: 100 })
+  name: string;
 
   @Column('datetime2', {
     name: 'CreatedAt',
@@ -42,9 +39,21 @@ export class Province {
   @Column('datetime2', { name: 'DeletedAt', nullable: true })
   deletedAt: Date | null;
 
+  @Column('nvarchar', { name: 'EnglishName', nullable: true, length: 100 })
+  englishName: string | null;
+
+  @Column('nvarchar', { name: 'Slug', nullable: true, length: 100 })
+  slug: string | null;
+
+  @OneToMany(() => Company, (company) => company.province)
   companies: Company[];
 
+  @OneToMany(() => District, (district) => district.province)
   districts: District[];
 
-  wards: Ward[];
+  @OneToMany(
+    () => ProvinceCrawlingLog,
+    (provinceCrawlingLog) => provinceCrawlingLog.province,
+  )
+  provinceCrawlingLogs: ProvinceCrawlingLog[];
 }

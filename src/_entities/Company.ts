@@ -1,71 +1,63 @@
-import { Column, Entity, Index } from 'typeorm';
-import { Business } from './Business';
-import { District } from './District';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Province } from './Province';
+import { District } from './District';
 import { Ward } from './Ward';
+import { CompanyStatus } from './CompanyStatus';
+import { CompanyBusinessMapping } from './CompanyBusinessMapping';
+import { CompanyCrawlingLog } from './CompanyCrawlingLog';
 
-@Index('IX_Company_DistrictId', ['districtId'], {})
-@Index('IX_Company_ProvinceId', ['provinceId'], {})
-@Index('IX_Company_WardId', ['wardId'], {})
-@Index('PK__Company__3214EC0768C5DFE4', ['id'], { unique: true })
-@Index('UQ__Company__12945A285D205ACE', ['taxCode'], { unique: true })
+@Index('Company_Code_uindex', ['code'], { unique: true })
+@Index('Company_Code_Unique', ['code'], { unique: true })
+@Index('Company_pk', ['id'], { unique: true })
 @Entity('Company', { schema: 'dbo' })
 export class Company {
-  @Column('bigint', { primary: true, name: 'Id' })
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
-  @Column('nvarchar', {
-    name: 'TaxCode',
-    nullable: true,
-    unique: true,
-    length: 100,
-  })
-  taxCode: string | null;
+  @Column('nvarchar', { name: 'Code', unique: true, length: 100 })
+  code: string;
 
-  @Column('nvarchar', { name: 'Name', nullable: true, length: 500 })
-  name: string | null;
+  @Column('nvarchar', { name: 'Name', length: 255 })
+  name: string;
 
-  @Column('nvarchar', { name: 'Description', nullable: true })
-  description: string | null;
+  @Column('nvarchar', { name: 'EnglishName', nullable: true, length: 255 })
+  englishName: string | null;
 
-  @Column('nvarchar', { name: 'Representative', nullable: true, length: 500 })
+  @Column('nvarchar', { name: 'Representative', nullable: true, length: 255 })
   representative: string | null;
 
-  @Column('nvarchar', { name: 'MainBusiness', nullable: true, length: 500 })
-  mainBusiness: string | null;
+  @Column('nvarchar', {
+    name: 'RepresentativePhoneNumber',
+    nullable: true,
+    length: 255,
+  })
+  representativePhoneNumber: string | null;
+
+  @Column('nvarchar', { name: 'PhoneNumber', nullable: true, length: 255 })
+  phoneNumber: string | null;
 
   @Column('nvarchar', { name: 'Address', nullable: true, length: 500 })
   address: string | null;
 
-  @Column('nvarchar', { name: 'FormattedAddress', nullable: true })
-  formattedAddress: string | null;
-
   @Column('datetime2', { name: 'IssuedAt', nullable: true })
   issuedAt: Date | null;
 
-  @Column('nvarchar', { name: 'CurrentStatus', nullable: true, length: 500 })
+  @Column('datetime2', { name: 'TerminatedAt', nullable: true })
+  terminatedAt: Date | null;
+
+  @Column('bigint', { name: 'NumberOfStaffs', nullable: true })
+  numberOfStaffs: string | null;
+
+  @Column('nvarchar', { name: 'CurrentStatus', nullable: true, length: 255 })
   currentStatus: string | null;
-
-  @Column('nvarchar', { name: 'AlternateName', nullable: true, length: 500 })
-  alternateName: string | null;
-
-  @Column('nvarchar', { name: 'Slug', nullable: true, length: 2048 })
-  slug: string | null;
-
-  @Column('bit', { name: 'IsCrawledFull', nullable: true })
-  isCrawledFull: boolean | null;
-
-  @Column('bigint', { name: 'ProvinceId', nullable: true })
-  provinceId: number | null;
-
-  @Column('bigint', { name: 'DistrictId', nullable: true })
-  districtId: number | null;
-
-  @Column('bigint', { name: 'WardId', nullable: true })
-  wardId: number | null;
-
-  @Column('bigint', { name: 'MainBusinessId', nullable: true })
-  mainBusinessId: number | null;
 
   @Column('datetime2', {
     name: 'CreatedAt',
@@ -84,11 +76,53 @@ export class Company {
   @Column('datetime2', { name: 'DeletedAt', nullable: true })
   deletedAt: Date | null;
 
-  ward: Ward;
+  @Column('nvarchar', { name: 'Director', nullable: true, length: 100 })
+  director: string | null;
 
+  @Column('nvarchar', {
+    name: 'DirectorPhoneNumber',
+    nullable: true,
+    length: 100,
+  })
+  directorPhoneNumber: string | null;
+
+  @Column('datetime2', { name: 'CommencementDate', nullable: true })
+  commencementDate: Date | null;
+
+  @Column('datetime2', { name: 'AccountCreatedAt', nullable: true })
+  accountCreatedAt: Date | null;
+
+  @Column('nvarchar', { name: 'TaxAuthority', nullable: true, length: 100 })
+  taxAuthority: string | null;
+
+  @Column('nvarchar', { name: 'Slug', nullable: true, length: 255 })
+  slug: string | null;
+
+  @ManyToOne(() => Province, (province) => province.companies)
+  @JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])
   province: Province;
 
+  @ManyToOne(() => District, (district) => district.companies)
+  @JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])
   district: District;
 
-  businesses: Business[];
+  @ManyToOne(() => Ward, (ward) => ward.companies)
+  @JoinColumn([{ name: 'WardId', referencedColumnName: 'id' }])
+  ward: Ward;
+
+  @ManyToOne(() => CompanyStatus, (companyStatus) => companyStatus.companies)
+  @JoinColumn([{ name: 'StatusId', referencedColumnName: 'id' }])
+  status: CompanyStatus;
+
+  @OneToMany(
+    () => CompanyBusinessMapping,
+    (companyBusinessMapping) => companyBusinessMapping.company,
+  )
+  companyBusinessMappings: CompanyBusinessMapping[];
+
+  @OneToMany(
+    () => CompanyCrawlingLog,
+    (companyCrawlingLog) => companyCrawlingLog.company,
+  )
+  companyCrawlingLogs: CompanyCrawlingLog[];
 }

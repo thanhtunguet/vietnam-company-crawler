@@ -3,8 +3,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { snakeCase } from 'lodash';
 import { description, name, version } from '../package.json';
-import { PORT } from './_config/dotenv';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+import { EnvironmentVariables } from 'src/_types/EnvironmentVariables';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,12 +21,18 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  if (process.env.ENABLE_CORS) {
+  const configService: ConfigService<EnvironmentVariables> = app.get(
+    ConfigService<EnvironmentVariables>,
+  );
+
+  if (configService.get('ENABLE_CORS')) {
     app.enableCors({
-      origin: process.env.CORS_ORIGIN,
+      origin: configService.get('CORS_ORIGIN'),
       credentials: true,
     });
   }
+
+  const PORT = configService.get('PORT');
 
   await app
     .listen(PORT)

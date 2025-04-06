@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { DistrictDto } from './district.dto';
 
 export class ProvinceDto {
   @ApiProperty({ description: 'Province ID', example: 1 })
@@ -11,14 +10,36 @@ export class ProvinceDto {
   @ApiProperty({ description: 'Province name', example: 'Hà Nội' })
   name: string;
 
-  @ApiProperty({ description: 'Province type', example: 'Thành phố' })
-  type: string;
+  @ApiProperty({
+    description: 'Creation date',
+    example: '2023-01-01T00:00:00.000Z',
+    required: false,
+  })
+  createdAt: Date | null;
 
-  @ApiProperty({ description: 'Province English name', example: 'Hanoi' })
-  englishName: string;
+  @ApiProperty({
+    description: 'Last update date',
+    example: '2023-01-01T00:00:00.000Z',
+    required: false,
+  })
+  updatedAt: Date | null;
 
-  @ApiProperty({ description: 'Province slug', example: 'ha-noi' })
-  slug: string;
+  @ApiProperty({ description: 'Deletion date', example: null, required: false })
+  deletedAt: Date | null;
 
-  districts: DistrictDto[];
+  @ApiProperty({
+    description: 'Province English name',
+    example: 'Hanoi',
+    required: false,
+  })
+  englishName: string | null;
+
+  // Districts will be added in index.ts to avoid circular dependency
+  districts: any[];
+
+  // Companies will be added in index.ts to avoid circular dependency
+  companies: any[];
+
+  // ProvinceCrawlingLogs will be added in index.ts to avoid circular dependency
+  provinceCrawlingLogs: any[];
 }

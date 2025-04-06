@@ -1,78 +1,135 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BusinessDto } from './business.dto';
 
 export class CompanyDto {
-  @ApiProperty({ required: false, description: 'Company ID' })
+  @ApiProperty({ description: 'Company ID', example: 1 })
   id: number;
 
-  @ApiProperty({ required: false, description: 'Company tax code' })
-  taxCode: string;
+  @ApiProperty({ description: 'Company code', example: 'MST0123456789' })
+  code: string;
 
-  @ApiProperty({ required: false, description: 'Company name' })
+  @ApiProperty({ description: 'Company name', example: 'Công ty TNHH ABC' })
   name: string;
 
-  @ApiProperty({ required: false, description: 'Company description' })
-  description: string;
-
-  @ApiProperty({ required: false, description: 'Creation timestamp' })
-  createdAt: Date;
-
-  @ApiProperty({ required: false, description: 'Last update timestamp' })
-  updatedAt: Date;
-
   @ApiProperty({
+    description: 'Company English name',
+    example: 'ABC Company Ltd.',
     required: false,
-    description: 'Deletion timestamp',
   })
-  deletedAt: Date;
-
-  @ApiProperty({ required: false, description: 'Company representative' })
-  representative: string;
-
-  @ApiProperty({ required: false, description: 'Main business activity' })
-  mainBusiness: string;
-
-  @ApiProperty({ required: false, description: 'Company address' })
-  address: string;
-
-  @ApiProperty({ required: false, description: 'Issue date' })
-  issuedAt: Date;
-
-  @ApiProperty({ required: false, description: 'Current company status' })
-  currentStatus: string;
+  englishName: string | null;
 
   @ApiProperty({
+    description: 'Company representative',
+    example: 'Nguyễn Văn A',
     required: false,
-    description: 'Alternative company name',
   })
-  alternateName: string;
-
-  @ApiProperty({ required: false, description: 'Province ID' })
-  provinceId: number;
-
-  @ApiProperty({ required: false, description: 'District ID' })
-  districtId: number;
-
-  @ApiProperty({ required: false, description: 'Main business ID' })
-  mainBusinessId: number;
-
-  @ApiProperty({ required: false, description: 'Company URL slug' })
-  slug: string;
-
-  @ApiProperty({ required: false, description: 'Ward ID' })
-  wardId: number;
-
-  @ApiProperty({ required: false, description: 'Formatted address' })
-  formattedAddress: string;
+  representative: string | null;
 
   @ApiProperty({
+    description: 'Representative phone number',
+    example: '0912345678',
     required: false,
-    description: 'Whether the company data has been fully crawled',
   })
-  isCrawledFull: boolean;
+  representativePhoneNumber: string | null;
 
   @ApiProperty({
-    type: [BusinessDto],
+    description: 'Company phone number',
+    example: '0243123456',
+    required: false,
   })
-  businesses?: BusinessDto[];
+  phoneNumber: string | null;
+
+  @ApiProperty({
+    description: 'Company address',
+    example: '123 Đường ABC, Phường XYZ, Quận DEF, Hà Nội',
+    required: false,
+  })
+  address: string | null;
+
+  @ApiProperty({
+    description: 'Issue date',
+    example: '2020-01-01T00:00:00.000Z',
+    required: false,
+  })
+  issuedAt: Date | null;
+
+  @ApiProperty({
+    description: 'Termination date',
+    example: null,
+    required: false,
+  })
+  terminatedAt: Date | null;
+
+  @ApiProperty({
+    description: 'Number of staff',
+    example: '50',
+    required: false,
+  })
+  numberOfStaffs: string | null;
+
+  @ApiProperty({
+    description: 'Current status',
+    example: 'Đang hoạt động',
+    required: false,
+  })
+  currentStatus: string | null;
+
+  @ApiProperty({
+    description: 'Creation date',
+    example: '2023-01-01T00:00:00.000Z',
+    required: false,
+  })
+  createdAt: Date | null;
+
+  @ApiProperty({
+    description: 'Last update date',
+    example: '2023-01-01T00:00:00.000Z',
+    required: false,
+  })
+  updatedAt: Date | null;
+
+  @ApiProperty({ description: 'Deletion date', example: null, required: false })
+  deletedAt: Date | null;
+
+  @ApiProperty({
+    description: 'Company director',
+    example: 'Nguyễn Văn B',
+    required: false,
+  })
+  director: string | null;
+
+  @ApiProperty({
+    description: 'Director phone number',
+    example: '0987654321',
+    required: false,
+  })
+  directorPhoneNumber: string | null;
+
+  @ApiProperty({
+    description: 'Commencement date',
+    example: '2020-02-01T00:00:00.000Z',
+    required: false,
+  })
+  commencementDate: Date | null;
+
+  @ApiProperty({
+    description: 'Account creation date',
+    example: '2020-01-15T00:00:00.000Z',
+    required: false,
+  })
+  accountCreatedAt: Date | null;
+
+  @ApiProperty({
+    description: 'Tax authority',
+    example: 'Cục thuế TP Hà Nội',
+    required: false,
+  })
+  taxAuthority: string | null;
+
+  // Related entities will be added in index.ts to avoid circular dependency
+  province: any;
+  district: any;
+  ward: any;
+  status: any;
+  companyBusinessMappings: any[];
+  companyCrawlingLogs: any[];
 }

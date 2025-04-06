@@ -1,171 +1,21 @@
-import {
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
-import { ApiKeys } from './ApiKeys';
-import { ApiUsageTracking } from './ApiUsageTracking';
-import { Users } from './Users';
-import { Company } from './Company';
-import { Business } from './Business';
-import { Province } from './Province';
-import { District } from './District';
-import { Ward } from './Ward';
-
-export { ApiKeys } from './ApiKeys';
-
-export { ApiUsageTracking } from './ApiUsageTracking';
-
 export { Business } from './Business';
 
 export { Company } from './Company';
 
-export { CrawlerJob } from './CrawlerJob';
+export { CompanyBusinessMapping } from './CompanyBusinessMapping';
+
+export { CompanyCrawlingLog } from './CompanyCrawlingLog';
+
+export { CompanyStatus } from './CompanyStatus';
+
+export { CrawlingStatus } from './CrawlingStatus';
 
 export { District } from './District';
 
 export { Province } from './Province';
 
-export { Users } from './Users';
+export { ProvinceCrawlingLog } from './ProvinceCrawlingLog';
 
 export { Ward } from './Ward';
 
-OneToMany(
-  () => ApiUsageTracking,
-  (apiUsageTracking) => apiUsageTracking.apiKey,
-)(ApiKeys.prototype, 'apiUsageTrackings');
-
-ManyToOne(
-  () => Users,
-  (users) => users.apiKeys,
-  {},
-)(ApiKeys.prototype, 'user');
-
-JoinColumn([{ name: 'UserId', referencedColumnName: 'id' }])(
-  ApiKeys.prototype,
-  'user',
-);
-
-ManyToOne(
-  () => ApiKeys,
-  (apiKeys) => apiKeys.apiUsageTrackings,
-  {},
-)(ApiUsageTracking.prototype, 'apiKey');
-
-JoinColumn([{ name: 'api_key_id', referencedColumnName: 'id' }])(
-  ApiUsageTracking.prototype,
-  'apiKey',
-);
-
-ManyToMany(
-  () => Company,
-  (company) => company.businesses,
-)(Business.prototype, 'companies');
-
-ManyToMany(
-  () => Business,
-  (business) => business.companies,
-)(Company.prototype, 'businesses');
-
-JoinTable({
-  name: 'CompanyBusinessMapping',
-  joinColumns: [{ name: 'CompanyId', referencedColumnName: 'id' }],
-  inverseJoinColumns: [{ name: 'BusinessId', referencedColumnName: 'id' }],
-})(Company.prototype, 'businesses');
-
-ManyToOne(
-  () => Province,
-  (province) => province.companies,
-  {},
-)(Company.prototype, 'province');
-
-JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
-  Company.prototype,
-  'province',
-);
-
-ManyToOne(
-  () => District,
-  (district) => district.companies,
-  {},
-)(Company.prototype, 'district');
-
-JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])(
-  Company.prototype,
-  'district',
-);
-
-ManyToOne(
-  () => Ward,
-  (ward) => ward.companies,
-  {},
-)(Company.prototype, 'ward');
-
-JoinColumn([{ name: 'WardId', referencedColumnName: 'id' }])(
-  Company.prototype,
-  'ward',
-);
-
-OneToMany(
-  () => Company,
-  (company) => company.province,
-)(Province.prototype, 'companies');
-
-OneToMany(
-  () => Company,
-  (company) => company.district,
-)(District.prototype, 'companies');
-
-OneToMany(
-  () => Company,
-  (company) => company.ward,
-)(Ward.prototype, 'companies');
-
-OneToMany(
-  () => Ward,
-  (ward) => ward.province,
-)(Province.prototype, 'wards');
-
-OneToMany(
-  () => District,
-  (district) => district.province,
-)(Province.prototype, 'districts');
-
-OneToMany(
-  () => Ward,
-  (ward) => ward.district,
-)(District.prototype, 'wards');
-
-ManyToOne(
-  () => Province,
-  (province) => province.districts,
-  {},
-)(District.prototype, 'province');
-JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
-  District.prototype,
-  'province',
-);
-
-ManyToOne(
-  () => District,
-  (district) => district.wards,
-  {},
-)(Ward.prototype, 'district');
-
-JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])(
-  Ward.prototype,
-  'district',
-);
-
-ManyToOne(
-  () => Province,
-  (province) => province.wards,
-  {},
-)(Ward.prototype, 'province');
-
-JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
-  Ward.prototype,
-  'province',
-);
+export { WebSource } from './WebSource';

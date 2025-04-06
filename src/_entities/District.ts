@@ -1,33 +1,28 @@
-import { Column, Entity, Index } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Company } from './Company';
 import { Province } from './Province';
 import { Ward } from './Ward';
 
-@Index('IX_District_ProvinceId', ['provinceId'], {})
-@Index('PK__District__3214EC073A781117', ['id'], { unique: true })
-@Index('UQ__District__A25C5AA75E498783', ['code'], { unique: true })
+@Index('District_Code_Unique', ['code'], { unique: true })
+@Index('District_pk', ['id'], { unique: true })
 @Entity('District', { schema: 'dbo' })
 export class District {
-  @Column('bigint', { primary: true, name: 'Id' })
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
-  @Column('nvarchar', { name: 'Code', unique: true, length: 100 })
+  @Column('nvarchar', { name: 'Code', unique: true, length: 10 })
   code: string;
 
-  @Column('nvarchar', { name: 'Name', nullable: true, length: 500 })
-  name: string | null;
-
-  @Column('nvarchar', { name: 'Type', nullable: true, length: 500 })
-  type: string | null;
-
-  @Column('bigint', { name: 'ProvinceId' })
-  provinceId: number;
-
-  @Column('nvarchar', { name: 'EnglishName', nullable: true, length: 500 })
-  englishName: string | null;
-
-  @Column('nvarchar', { name: 'Slug', nullable: true, length: 255 })
-  slug: string | null;
+  @Column('nvarchar', { name: 'Name', length: 100 })
+  name: string;
 
   @Column('datetime2', {
     name: 'CreatedAt',
@@ -36,19 +31,25 @@ export class District {
   })
   createdAt: Date | null;
 
-  @Column('datetime2', {
-    name: 'UpdatedAt',
-    nullable: true,
-    default: () => 'getdate()',
-  })
+  @Column('datetime2', { name: 'UpdatedAt', nullable: true })
   updatedAt: Date | null;
 
   @Column('datetime2', { name: 'DeletedAt', nullable: true })
   deletedAt: Date | null;
 
+  @Column('nvarchar', { name: 'EnglishName', nullable: true, length: 100 })
+  englishName: string | null;
+
+  @Column('nvarchar', { name: 'Slug', nullable: true, length: 100 })
+  slug: string | null;
+
+  @OneToMany(() => Company, (company) => company.district)
   companies: Company[];
 
+  @ManyToOne(() => Province, (province) => province.districts)
+  @JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])
   province: Province;
 
+  @OneToMany(() => Ward, (ward) => ward.district)
   wards: Ward[];
 }

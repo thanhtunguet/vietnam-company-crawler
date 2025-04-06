@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class DetailJobDto {
+export class CompanyParsingDto {
   @ApiProperty({
-    type: 'string',
+    type: String,
   })
-  companyUrl: string;
+  link: string;
 }
