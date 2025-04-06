@@ -5,7 +5,8 @@ import { InfoDoanhNghiepAdapter } from './adapters/infodoanhnghiep.adapter';
 import { ProxyHttpClient } from './crawler.proxy.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from 'src/_entities';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { sleep } from 'openai/core';
 
 class CompanyCrawlingDto {
   @ApiProperty({ type: String })
@@ -96,5 +97,99 @@ export class CrawlerTestController {
     const end = new Date();
     console.log('Time taken:', end.getTime() - now.getTime(), 'ms');
     return result;
+  }
+
+  @Get('/trigger')
+  public async trigger() {
+    this.triggerCrawlingAll();
+    return 'Crawling triggered';
+  }
+
+  private async triggerCrawlingAll() {
+    try {
+      const provinces = await this.infoDoanhNghiepAdapter.getProvinceData();
+      const CONCURRENT_JOBS = 27;
+      for (const province of provinces) {
+        const provinceData = {
+          name: province.name,
+          link: province.link,
+          numberOfPages: province.numberOfPages,
+          totalCompanies: province.totalCompanies,
+        };
+        for (
+          let page = 1;
+          page <= provinceData.numberOfPages;
+          page += CONCURRENT_JOBS
+        ) {
+          const pages = new Array(CONCURRENT_JOBS);
+          for (let i = 0; i < CONCURRENT_JOBS; i++) {
+            pages[i] = page + i;
+          }
+          await this.timeTaken(() =>
+            Promise.all(
+              pages.map(async (page) => {
+                const companies =
+                  await this.infoDoanhNghiepAdapter.extractCompaniesFromPage(
+                    provinceData,
+                    page,
+                  );
+
+                const companyIds = companies.map((company) => company.id);
+
+                const existingCompanies = await this.companyRepository.find({
+                  where: {
+                    id: In(companyIds),
+                  },
+                });
+                const existingCompanyIds = existingCompanies.map(
+                  (company) => company.id,
+                );
+
+                const newCompanies = companies.filter(
+                  (company) => !existingCompanyIds.includes(company.id),
+                );
+
+                await this.companyRepository.save(
+                  newCompanies.map((details) => {
+                    const company = this.companyRepository.create();
+
+                    const {
+                      id,
+                      taxCode,
+                      name,
+                      address,
+                      province,
+                      district,
+                      ward,
+                      issuedAt,
+                      representative,
+                    } = details;
+
+                    Object.assign(company, {
+                      id,
+                      code: taxCode,
+                      name,
+                      address,
+                      province,
+                      district,
+                      ward,
+                      issuedAt,
+                      representative,
+                      slug: details.link,
+                    });
+
+                    return company;
+                  }),
+                );
+              }),
+            ),
+          );
+          await sleep(Math.random());
+        }
+      }
+    } catch (error) {
+      console.error('Error triggering company crawling:', error);
+      return 'Error';
+    }
   }
 }

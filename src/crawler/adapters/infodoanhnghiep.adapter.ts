@@ -133,7 +133,7 @@ export class InfoDoanhNghiepAdapter
     page: number,
   ): Promise<Partial<CompanyDetails>[]> {
     const pageUrl = new URL(
-      `/${province.link}/trang-${page}/`,
+      `${province.link}trang-${page}/`,
       infoDoanhNghiep.link,
     ).href;
     const html = await this.http.get(pageUrl);
@@ -162,12 +162,12 @@ export class InfoDoanhNghiepAdapter
 
       const info = $(this).children('p:nth-of-type(2)').text().trim();
       const matchResult =
-        /^Mã\s*số\s*thuế:\s*([0-9]+\-?[0-9]+?)\s*\-\s*Đại\s*diện\s*pháp\s*luật:\s*(.*)?$/im.exec(
+        /^Mã\s*số\s*thuế:\s*([0-9]+\-?[0-9]+?)(\s*\-\s*Đại\s*diện\s*pháp\s*luật:\s*(.*))?$/im.exec(
           info,
         );
 
       if (matchResult) {
-        const [, taxCode, representative] = matchResult;
+        const [, taxCode, , representative] = matchResult;
         company.taxCode = taxCode;
         company.representative = representative;
         company.id = InfoDoanhNghiepAdapter.getCompanyIdFromTaxCode(
@@ -197,11 +197,13 @@ export class InfoDoanhNghiepAdapter
     return companies;
   }
 
-  private handleAddress(address: string): {
+  private readonly handleAddress = (
+    address: string,
+  ): {
     province?: Province;
     district?: District;
     ward?: Ward;
-  } {
+  } => {
     const [provinceName, districtName, wardName] = address
       .split(',')
       .map((item) => item.trim())
@@ -240,7 +242,7 @@ export class InfoDoanhNghiepAdapter
       district,
       ward,
     };
-  }
+  };
 
   public async extractCompanyDetails(
     companyDetails: CompanyDetails,
