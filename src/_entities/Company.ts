@@ -47,11 +47,17 @@ export class Company {
   @Column('nvarchar', { name: 'Address', nullable: true, length: 500 })
   address: string | null;
 
+  @Column('nvarchar', { name: 'Description', nullable: true, length: 4000 })
+  description: string | null;
+
   @Column('datetime2', { name: 'IssuedAt', nullable: true })
   issuedAt: Date | null;
 
   @Column('datetime2', { name: 'TerminatedAt', nullable: true })
   terminatedAt: Date | null;
+
+  @Column('bigint', { name: 'StatusId', nullable: true })
+  statusId?: number;
 
   @Column('bigint', { name: 'NumberOfStaffs', nullable: true })
   numberOfStaffs: string | null;

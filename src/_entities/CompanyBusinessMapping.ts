@@ -22,9 +22,9 @@ export class CompanyBusinessMapping {
 
   @ManyToOne(() => Business, (business) => business.companyBusinessMappings)
   @JoinColumn([{ name: 'BusinessId', referencedColumnName: 'id' }])
-  business: Business;
+  business?: Business;
 
   @ManyToOne(() => Company, (company) => company.companyBusinessMappings)
   @JoinColumn([{ name: 'CompanyId', referencedColumnName: 'id' }])
-  company: Company;
+  company?: Company;
 }

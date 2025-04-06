@@ -3,7 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from 'src/_types/EnvironmentVariables';
 import { OpenAI } from 'openai';
 import companyPrompt from './prompts/company.md';
+import addressPrompt from './prompts/address.md';
 import HandleBars from 'handlebars';
+import addressSchema from './schemas/address.json';
+import companySchema from './schemas/company.json';
 
 @Injectable()
 export class OpenaiService {
@@ -17,6 +20,38 @@ export class OpenaiService {
       apiKey: configService.get<string>('OPENAI_API_KEY'),
       maxRetries: 3,
     });
+
+    console.log(companySchema);
+  }
+
+  public async parseAddress(address: string) {
+    const prompt = HandleBars.compile(addressPrompt)({
+      address,
+    });
+    const response = await this.openai.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'address',
+          schema: addressSchema,
+        },
+      },
+      model: this.configService.get<string>('OPENAI_MODEL'),
+      temperature: 0,
+      max_tokens: 2048,
+      presence_penalty: 0,
+      frequency_penalty: 0,
+      top_p: 1,
+      stop: ['}'],
+    });
+
+    return response.choices[0].message.content;
   }
 
   public async parseCompany(text: string) {
@@ -34,7 +69,7 @@ export class OpenaiService {
         type: 'json_schema',
         json_schema: {
           name: 'company',
-          schema: this.companySchema,
+          schema: companySchema,
         },
       },
       model: this.configService.get<string>('OPENAI_MODEL'),
@@ -43,121 +78,4 @@ export class OpenaiService {
 
     return response.choices[0].message.content;
   }
-
-  private readonly companySchema = {
-    type: 'object',
-    properties: {
-      id: {
-        type: 'integer',
-        description: 'Unique identifier for the company',
-      },
-      code: {
-        type: 'string',
-        description: 'Company code or registration number',
-      },
-      name: {
-        type: 'string',
-        description: 'Full official name of the company',
-      },
-      englishName: {
-        type: 'string',
-        description: 'English version of the company name if available',
-      },
-      representative: {
-        type: 'string',
-        description: 'Name of the legal representative',
-      },
-      representativePhoneNumber: {
-        type: 'string',
-        description: 'Contact phone number of the legal representative',
-      },
-      phoneNumber: {
-        type: 'string',
-        description: 'Main contact phone number of the company',
-      },
-      address: {
-        type: 'string',
-        description: 'Full physical address of the company headquarters',
-      },
-      issuedAt: {
-        type: 'string',
-        description:
-          'Date when the business registration was issued, in ISO format or DD/MM/YYYY',
-      },
-      terminatedAt: {
-        type: ['string', 'null'],
-        description: 'Date when the company was terminated, if applicable',
-      },
-      numberOfStaffs: {
-        type: 'string',
-        description: 'Number of employees in the company',
-      },
-      currentStatus: {
-        type: 'string',
-        description: 'Current operational status of the company',
-      },
-      createdAt: {
-        type: 'string',
-        format: 'date-time',
-        description: 'Timestamp when the company record was created',
-      },
-      updatedAt: {
-        type: 'string',
-        format: 'date-time',
-        description: 'Timestamp when the company record was last updated',
-      },
-      deletedAt: {
-        type: ['string', 'null'],
-        format: 'date-time',
-        description:
-          'Timestamp when the company record was soft deleted, if applicable',
-      },
-      director: {
-        type: 'string',
-        description: 'Name of the company director or CEO',
-      },
-      directorPhoneNumber: {
-        type: 'string',
-        description: 'Contact phone number of the director',
-      },
-      commencementDate: {
-        type: 'string',
-        format: 'date-time',
-        description: 'Date when the company started operations',
-      },
-      accountCreatedAt: {
-        type: 'string',
-        format: 'date-time',
-        description: 'Date when the company account was created in the system',
-      },
-      taxAuthority: {
-        type: 'string',
-        description: 'Name of the tax authority responsible for the company',
-      },
-      businessLines: {
-        type: 'array',
-        description:
-          'List of business activities the company is registered for',
-        items: {
-          type: 'object',
-          properties: {
-            code: {
-              type: 'string',
-              description: 'Business activity code',
-            },
-            name: {
-              type: 'string',
-              description: 'Description of the business activity',
-            },
-            isPrimary: {
-              type: 'boolean',
-              description: 'Indicates if this is the primary business activity',
-            },
-          },
-          required: ['code', 'name', 'isPrimary'],
-        },
-      },
-    },
-    required: ['name', 'code', 'address', 'currentStatus', 'businessLines'],
-  };
 }

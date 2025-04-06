@@ -23,5 +23,5 @@ export class CompanyStatus {
   englishName: string | null;
 
   @OneToMany(() => Company, (company) => company.status)
-  companies: Company[];
+  companies?: Company[];
 }

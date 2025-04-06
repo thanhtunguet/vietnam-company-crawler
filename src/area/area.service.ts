@@ -1,26 +1,93 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Province } from 'src/_entities';
+import { District, Province, Ward } from 'src/_entities';
 import { QueryFilterDto } from 'src/_filters/query-filter.dto';
+import { vietnameseSlugify } from 'src/_helpers/slugify';
 import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class AreaService implements OnModuleInit {
-  private provinces: Province[] = [];
+  public static getBaseProvinceName(provinceName: string): string {
+    return provinceName
+      .replace(/Tỉnh\s|Thành phố\s|TP\.*\s*/, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  public static getBaseDistrictName(districtName: string): string {
+    return districtName
+      .replace(/Huyện\s|Quận\s|Thị xã\s|Thành phố\s*|TP\.?\s*/, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  public static getBaseWardName(wardName: string): string {
+    return wardName
+      .replace(/Phường\s|Xã\s|Thị trấn\s*/, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  public provinces: Record<string, Province> = {};
+
+  public districts: Record<string, District> = {};
+
+  public wards: Record<string, Ward> = {};
 
   constructor(
     @InjectRepository(Province)
     private readonly provinceRepository: Repository<Province>,
+    @InjectRepository(District)
+    private readonly districtRepository: Repository<District>,
+    @InjectRepository(Ward)
+    private readonly wardRepository: Repository<Ward>,
   ) {}
 
-  async onModuleInit() {
-    this.provinces = await this.provinceRepository.find({
-      relations: ['districts', 'districts.wards'],
+  public async onModuleInit() {
+    await this.provinceRepository.find().then((provinces) => {
+      const provinceMap = Object.fromEntries(
+        provinces.map((p) => {
+          const key = vietnameseSlugify(
+            AreaService.getBaseProvinceName(p.name),
+          );
+          return [key, p];
+        }),
+      );
+
+      this.provinces = provinceMap;
+      Object.freeze(this.provinces);
     });
-    console.log('Provinces loaded:', this.provinces.length);
+    console.log('All provinces loaded');
+    await this.districtRepository.find().then((districts) => {
+      const districtMap = Object.fromEntries(
+        districts.map((d) => {
+          const key = vietnameseSlugify(
+            AreaService.getBaseDistrictName(d.name),
+          );
+          return [key, d];
+        }),
+      );
+
+      this.districts = districtMap;
+      Object.freeze(this.districts);
+    });
+    console.log('All districts loaded');
+
+    await this.wardRepository.find().then((wards) => {
+      const wardMap = Object.fromEntries(
+        wards.map((w) => {
+          const key = vietnameseSlugify(AreaService.getBaseWardName(w.name));
+          return [key, w];
+        }),
+      );
+
+      this.wards = wardMap;
+      Object.freeze(this.wards);
+    });
+    console.log('All wards loaded');
   }
 
-  async getProvinces(query: QueryFilterDto): Promise<Province[]> {
+  public async getProvinces(query: QueryFilterDto): Promise<Province[]> {
     const { skip, take, search, orderBy, order } = query;
     const where = [];
     if (search) {
@@ -43,7 +110,7 @@ export class AreaService implements OnModuleInit {
     });
   }
 
-  async getProvince(id: number): Promise<Province | null> {
+  public async getProvince(id: number): Promise<Province | null> {
     return this.provinceRepository.findOne({
       where: { id },
       relations: ['districts', 'districts.wards'],

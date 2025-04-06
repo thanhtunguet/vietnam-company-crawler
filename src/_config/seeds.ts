@@ -16,17 +16,23 @@ export const maSoThue = {
 
 export const webSources: Partial<WebSource>[] = [infoDoanhNghiep, maSoThue];
 
+export const companyStatusActive: CompanyStatus = {
+  id: 1,
+  code: 'active',
+  name: 'Hoạt động',
+  englishName: 'Active',
+};
+
+export const companyStatusInactive: CompanyStatus = {
+  id: 2,
+  code: 'inactive',
+  name: 'Ngừng hoạt động',
+  englishName: 'Inactive',
+};
+
 export const companyStatus: Partial<CompanyStatus>[] = [
-  {
-    id: 1,
-    code: 'active',
-    name: 'Hoạt động',
-  },
-  {
-    id: 2,
-    code: 'inactive',
-    name: 'Ngừng hoạt động',
-  },
+  companyStatusActive,
+  companyStatusInactive,
 ];
 
 export const crawlingStatus: Partial<CrawlingStatus>[] = [

@@ -1,0 +1,26 @@
+{
+    "type": "object",
+    "properties": {
+        "address": {
+            "type": "string",
+            "description": "Full address of the company"
+        },
+        "province": {
+            "type": "string",
+            "description": "Name of the province or city"
+        },
+        "district": {
+            "type": "string",
+            "description": "Name of the district or county"
+        },
+        "ward": {
+            "type": "string",
+            "description": "Name of the ward or commune"
+        }
+    },
+    "required": [
+        "province",
+        "district",
+        "ward"
+    ]
+}

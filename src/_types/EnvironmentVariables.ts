@@ -36,4 +36,8 @@ export interface EnvironmentVariables {
   RABBITMQ_IP?: string;
 
   RABBITMQ_PORT?: number;
+
+  CRAWLER_PROXIES?: string;
+
+  proxies?(): string[];
 }

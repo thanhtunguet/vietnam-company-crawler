@@ -1,0 +1,129 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Unique identifier for the company"
+        },
+        "code": {
+            "type": "string",
+            "description": "Company code or registration number"
+        },
+        "name": {
+            "type": "string",
+            "description": "Full official name of the company"
+        },
+        "englishName": {
+            "type": "string",
+            "description": "English version of the company name if available"
+        },
+        "representative": {
+            "type": "string",
+            "description": "Name of the legal representative"
+        },
+        "representativePhoneNumber": {
+            "type": "string",
+            "description": "Contact phone number of the legal representative"
+        },
+        "phoneNumber": {
+            "type": "string",
+            "description": "Main contact phone number of the company"
+        },
+        "address": {
+            "type": "string",
+            "description": "Full physical address of the company headquarters"
+        },
+        "issuedAt": {
+            "type": "string",
+            "description": "Date when the business registration was issued, in ISO format or DD/MM/YYYY"
+        },
+        "terminatedAt": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "Date when the company was terminated, if applicable"
+        },
+        "numberOfStaffs": {
+            "type": "string",
+            "description": "Number of employees in the company"
+        },
+        "currentStatus": {
+            "type": "string",
+            "description": "Current operational status of the company"
+        },
+        "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the company record was created"
+        },
+        "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the company record was last updated"
+        },
+        "deletedAt": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "format": "date-time",
+            "description": "Timestamp when the company record was soft deleted, if applicable"
+        },
+        "director": {
+            "type": "string",
+            "description": "Name of the company director or CEO"
+        },
+        "directorPhoneNumber": {
+            "type": "string",
+            "description": "Contact phone number of the director"
+        },
+        "commencementDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the company started operations"
+        },
+        "accountCreatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the company account was created in the system"
+        },
+        "taxAuthority": {
+            "type": "string",
+            "description": "Name of the tax authority responsible for the company"
+        },
+        "businessLines": {
+            "type": "array",
+            "description": "List of business activities the company is registered for",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "Business activity code"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Description of the business activity"
+                    },
+                    "isPrimary": {
+                        "type": "boolean",
+                        "description": "Indicates if this is the primary business activity"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "isPrimary"
+                ]
+            }
+        }
+    },
+    "required": [
+        "name",
+        "code",
+        "address",
+        "currentStatus",
+        "businessLines"
+    ]
+}
