@@ -6,13 +6,9 @@ import { SocksProxyAgent } from 'socks-proxy-agent';
 import { generateRandomUserAgent } from 'src/_helpers/user-agent';
 
 @Injectable()
-export class ProxyHttpClient implements OnModuleInit {
+export class CrawlerProxyService implements OnModuleInit {
   onModuleInit() {
-    const proxies =
-      this.configService
-        .get('CRAWLER_PROXIES')
-        ?.split(',')
-        .map((proxy) => proxy.trim()) || [];
+    const proxies = this.configService.get<string[]>('CRAWLER_PROXIES');
     if (proxies.length === 0) {
       throw new Error('No proxies provided in configuration');
     }
@@ -20,6 +16,7 @@ export class ProxyHttpClient implements OnModuleInit {
   }
 
   public proxyList: string[];
+
   private currentIndex = 0;
 
   constructor(private readonly configService: ConfigService) {}
@@ -78,6 +75,4 @@ export class ProxyHttpClient implements OnModuleInit {
       throw err;
     }
   }
-
-  // Add other HTTP methods as needed (PUT, DELETE, etc.)
 }

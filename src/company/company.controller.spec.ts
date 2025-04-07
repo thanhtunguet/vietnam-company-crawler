@@ -1,13 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestingModule } from '@nestjs/testing';
+import { AreaModule } from 'src/area/area.module';
+import { setupDatabase } from 'src/setup.test';
 import { CompanyController } from './company.controller';
+import { CompanyService } from './company.service';
 
 describe('CompanyController', () => {
   let controller: CompanyController;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await setupDatabase({
+      providers: [CompanyService],
       controllers: [CompanyController],
-    }).compile();
+      imports: [AreaModule],
+    });
 
     controller = module.get<CompanyController>(CompanyController);
   });

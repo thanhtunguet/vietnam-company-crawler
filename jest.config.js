@@ -1,13 +1,17 @@
 module.exports = {
     "moduleFileExtensions": [
         "js",
+        "jsx",
+        "mjs",
         "json",
-        "ts"
+        "ts",
+        "tsx"
     ],
     "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-        "^.+\\.(t|j)s$": "ts-jest"
+        "^.+\\.(t|j)s$": "ts-jest",
+        '\\.md$': '<rootDir>/test/file-transform.ts',
     },
     "collectCoverageFrom": [
         "**/*.(t|j)s"
@@ -15,6 +19,7 @@ module.exports = {
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
-        "^src/(.*)$": "<rootDir>/src/$1"
+        "^src/(.*)$": "<rootDir>/src/$1",
+        '\\.md$': '<rootDir>/test/file-transform.ts',
     }
 };

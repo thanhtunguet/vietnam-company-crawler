@@ -13,6 +13,7 @@ import { Ward } from './Ward';
 import { CompanyStatus } from './CompanyStatus';
 import { CompanyBusinessMapping } from './CompanyBusinessMapping';
 import { CompanyCrawlingLog } from './CompanyCrawlingLog';
+import { Business } from './Business';
 
 @Index('Company_Code_uindex', ['code'], { unique: true })
 @Index('Company_Code_Unique', ['code'], { unique: true })
@@ -131,4 +132,6 @@ export class Company {
     (companyCrawlingLog) => companyCrawlingLog.company,
   )
   companyCrawlingLogs: CompanyCrawlingLog[];
+
+  businesses?: Business[];
 }

@@ -33,6 +33,10 @@ export class CompanyDetails {
 }
 
 export abstract class AbstractCrawlerAdapter {
+  static getCompanyIdFromTaxCode(taxCode: string) {
+    return Number(taxCode.replace(/-/g, ''));
+  }
+
   public abstract getProvinceData(): Promise<ProvinceData[]>;
 
   public abstract extractCompaniesFromPage(

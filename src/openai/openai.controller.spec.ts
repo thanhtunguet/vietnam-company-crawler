@@ -1,13 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestingModule } from '@nestjs/testing';
+import { AreaModule } from 'src/area/area.module';
 import { OpenaiController } from './openai.controller';
+import { OpenaiService } from './openai.service';
+import { setupDatabase } from 'src/setup.test';
 
 describe('OpenaiController', () => {
   let controller: OpenaiController;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await setupDatabase({
+      providers: [OpenaiService],
       controllers: [OpenaiController],
-    }).compile();
+      imports: [AreaModule],
+    });
 
     controller = module.get<OpenaiController>(OpenaiController);
   });

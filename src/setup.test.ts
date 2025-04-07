@@ -4,14 +4,21 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { config } from 'dotenv';
 import * as allEntities from 'src/_entities';
 import { EnvironmentVariables } from 'src/_types/EnvironmentVariables';
-import { AreaModule } from 'src/area/area.module';
 import { validateConfiguration } from './_config/config';
 
 config();
 
 const entities = Object.values(allEntities);
 
-export const setupDatabase = async (providers: any[]) => {
+export const setupDatabase = async ({
+  imports = [],
+  controllers = [],
+  providers = [],
+}: {
+  imports?: any[];
+  controllers?: any[];
+  providers?: any[];
+}) => {
   return await Test.createTestingModule({
     imports: [
       TypeOrmModule.forRootAsync({
@@ -34,8 +41,8 @@ export const setupDatabase = async (providers: any[]) => {
           password: config.get<string>('DB_PASSWORD'),
           database: config.get<string>('DB_NAME'),
           autoLoadEntities: true,
-          synchronize: config.get<any>('DB_SYNCHRONIZE') === 'true', // Set to false in production
-          logging: config.get<boolean>('DB_LOGGING'), // Set to false in production
+          synchronize: false,
+          logging: false,
           entities,
           extra: {
             trustServerCertificate: true,
@@ -43,8 +50,9 @@ export const setupDatabase = async (providers: any[]) => {
         }),
       }),
       TypeOrmModule.forFeature(entities),
-      AreaModule,
+      ...imports,
     ],
+    controllers,
     providers,
   }).compile();
 };

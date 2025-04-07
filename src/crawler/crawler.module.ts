@@ -9,13 +9,13 @@ import {
   ProvinceCrawlingLog,
   Ward,
 } from 'src/_entities';
-import { CrawlerController } from './crawler.controller';
-import { CrawlerService } from './crawler.service';
+import { CrawlerController } from './controllers/crawler.controller';
 import { InfoDoanhNghiepAdapter } from './adapters/infodoanhnghiep.adapter';
 import { AreaModule } from 'src/area/area.module';
-import { CrawlerTestController } from './crawler-test.controller';
-import { CralwerUtilsService } from './crawler.utils.service';
-import { ProxyHttpClient } from './crawler.proxy.service';
+import { CrawlerTestController } from './controllers/crawler-test.controller';
+import { CrawlerService } from './services/crawler.service';
+import { CralwerUtilsService } from './services/crawler.utils.service';
+import { CrawlerProxyService } from './services/crawler.proxy.service';
 
 @Module({
   imports: [
@@ -32,9 +32,9 @@ import { ProxyHttpClient } from './crawler.proxy.service';
   ],
   providers: [
     CrawlerService,
+    CrawlerProxyService,
     CralwerUtilsService,
     InfoDoanhNghiepAdapter,
-    ProxyHttpClient,
   ],
   controllers: [CrawlerController, CrawlerTestController],
 })

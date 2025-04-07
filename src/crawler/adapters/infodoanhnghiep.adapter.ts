@@ -1,12 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import axios, { AxiosInstance } from 'axios';
 import { load } from 'cheerio';
-import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as moment from 'moment';
-import { SocksProxyAgent } from 'socks-proxy-agent';
-import { axiosBaseConfig } from 'src/_config/axios';
 import {
   companyStatusActive,
   companyStatusInactive,
@@ -21,7 +17,7 @@ import {
   Province,
   Ward,
 } from 'src/_entities';
-import { retryRequest } from 'src/_helpers/retry';
+import { splitArrayByLength } from 'src/_helpers/array';
 import { vietnameseSlugify } from 'src/_helpers/slugify';
 import { AreaService } from 'src/area/area.service';
 import { Repository } from 'typeorm';
@@ -30,8 +26,8 @@ import {
   CompanyDetails,
   ProvinceData,
 } from '../abstract-crawler.adapter';
-import { CralwerUtilsService } from '../crawler.utils.service';
-import { splitArrayByLength } from 'src/_helpers/array';
+import { CrawlerHttpClient } from '../crawler.http-client';
+import { CralwerUtilsService } from '../services/crawler.utils.service';
 
 const PER_PAGE = 20;
 
@@ -40,18 +36,9 @@ export class InfoDoanhNghiepAdapter
   extends AbstractCrawlerAdapter
   implements OnModuleInit
 {
-  static getCompanyIdFromTaxCode(taxCode: string) {
-    return Number(taxCode.replace(/-/g, ''));
-  }
+  private static CONCURRENT_JOBS = 5;
 
-  static getCompanySlug(link: string) {
-    return link
-      .replace(infoDoanhNghiep.link, '')
-      .replace('/thong-tin/', '')
-      .replace('.html', '');
-  }
-
-  private http: InfoDoanhNghiepAxiosClient;
+  private http: CrawlerHttpClient;
 
   private companyStatuses: Record<string, CompanyStatus> = {};
 
@@ -67,18 +54,20 @@ export class InfoDoanhNghiepAdapter
     super();
   }
 
-  async onModuleInit() {
-    const proxies =
-      this.configService
-        .get<string>('CRAWLER_PROXIES')
-        ?.split(',')
-        .map((proxy) => proxy.trim()) || [];
-    console.log(proxies);
-    this.http = new InfoDoanhNghiepAxiosClient(proxies, 3);
+  public async onModuleInit() {
+    const proxies = this.configService.get<string[]>('CRAWLER_PROXIES');
+    this.http = new CrawlerHttpClient(infoDoanhNghiep.link, proxies, 3);
     const statuses = await this.companyStatusRepository.find();
     this.companyStatuses = Object.fromEntries(
       statuses.map((status) => [status.code, status]),
     );
+  }
+
+  protected getCompanySlug(link: string): string {
+    return link
+      .replace(infoDoanhNghiep.link, '')
+      .replace('/thong-tin/', '')
+      .replace('.html', '');
   }
 
   public async getProvinceData(): Promise<ProvinceData[]> {
@@ -103,7 +92,9 @@ export class InfoDoanhNghiepAdapter
       };
     });
 
-    const CRAWLER_CONCURRENT_JOBS = 30;
+    const CRAWLER_CONCURRENT_JOBS =
+      InfoDoanhNghiepAdapter.CONCURRENT_JOBS *
+      this.configService.get<string[]>('CRAWLER_PROXIES').length;
 
     for (let i = 0; i < provinces.length; i += CRAWLER_CONCURRENT_JOBS) {
       const chunks = provinces.slice(i, i + CRAWLER_CONCURRENT_JOBS);
@@ -142,14 +133,14 @@ export class InfoDoanhNghiepAdapter
 
     const handleAddress = this.handleAddress;
 
+    const getCompanySlug = this.getCompanySlug;
+
     $('.company-item').each(function () {
       const company: Partial<CompanyDetails> = {};
 
       const anchor = $(this).children().toArray()[1].children[0];
 
-      company.link = InfoDoanhNghiepAdapter.getCompanySlug(
-        $(anchor).attr('href'),
-      );
+      company.link = getCompanySlug($(anchor).attr('href'));
 
       company.name = $(anchor).text().trim();
 
@@ -275,9 +266,7 @@ export class InfoDoanhNghiepAdapter
     )
       .text()
       .trim();
-    company.slug = InfoDoanhNghiepAdapter.getCompanySlug(
-      $('link[rel="canonical"]').attr('href'),
-    );
+    company.slug = this.getCompanySlug($('link[rel="canonical"]').attr('href'));
 
     company.englishName = $(
       '.company-info-section .responsive-table-cell[itemprop="alternateName"]',
@@ -346,10 +335,6 @@ export class InfoDoanhNghiepAdapter
       }
     });
 
-    // TODO: handle company address
-
-    // Parse Businesses
-
     const businesses: Partial<Business>[] = [];
     const companyBusinessMappings: CompanyBusinessMapping[] = [];
     splitArrayByLength(
@@ -378,50 +363,5 @@ export class InfoDoanhNghiepAdapter
       ...company,
       businesses,
     } as Company;
-  }
-}
-
-class InfoDoanhNghiepAxiosClient {
-  private proxyIndex = 0;
-
-  constructor(
-    private readonly proxyList: string[],
-    private readonly maxRetries = 3,
-  ) {}
-
-  private createAxiosWithProxy(): AxiosInstance {
-    let agent;
-
-    const proxyUrl = this.rotateProxy();
-
-    if (proxyUrl.startsWith('socks')) {
-      agent = new SocksProxyAgent(proxyUrl);
-    } else {
-      agent = new HttpsProxyAgent(proxyUrl);
-    }
-
-    return axios.create({
-      ...axiosBaseConfig,
-      baseURL: infoDoanhNghiep.link,
-      httpsAgent: agent,
-      httpAgent: agent,
-      timeout: 10000,
-    });
-  }
-
-  private rotateProxy(): string {
-    const proxy = this.proxyList[this.proxyIndex];
-    this.proxyIndex = (this.proxyIndex + 1) % this.proxyList.length;
-    return proxy;
-  }
-
-  public async get(url: string): Promise<string> {
-    return retryRequest(
-      () =>
-        this.createAxiosWithProxy()
-          .get(url)
-          .then((response) => response.data),
-      this.maxRetries,
-    );
   }
 }

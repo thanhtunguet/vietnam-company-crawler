@@ -52,14 +52,13 @@ export function validateConfiguration(config: EnvironmentVariables) {
     config.RABBITMQ_PORT = Number(config.RABBITMQ_PORT);
   }
 
-  const proxies = config.CRAWLER_PROXIES?.split(',') || [];
-  proxies.forEach((proxy, index) => {
-    proxies[index] = proxy.trim();
-  });
-
-  config.proxies = () => {
-    return proxies.filter((proxy) => proxy !== '');
-  };
+  if (typeof config.CRAWLER_PROXIES === 'string') {
+    config.CRAWLER_PROXIES = config.CRAWLER_PROXIES.split(',').map((proxy) =>
+      proxy.trim(),
+    );
+  } else {
+    config.CRAWLER_PROXIES = config.CRAWLER_PROXIES || [];
+  }
 
   return config;
 }

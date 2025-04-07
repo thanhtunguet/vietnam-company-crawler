@@ -20,8 +20,6 @@ export class OpenaiService {
       apiKey: configService.get<string>('OPENAI_API_KEY'),
       maxRetries: 3,
     });
-
-    console.log(companySchema);
   }
 
   public async parseAddress(address: string) {
