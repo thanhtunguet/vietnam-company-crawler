@@ -6,6 +6,7 @@ import * as entities from 'src/_entities';
 import { EnvironmentVariables } from 'src/_types/EnvironmentVariables';
 import { validateConfiguration } from './_config/config';
 import { AreaModule } from './area/area.module';
+import { AuthModule } from './auth/auth.module';
 import { BusinessModule } from './business/business.module';
 import { CompanyModule } from './company/company.module';
 import { CrawlerModule } from './crawler/crawler.module';
@@ -43,6 +44,7 @@ import { OpenaiModule } from './openai/openai.module';
       }),
     }),
     TypeOrmModule.forFeature(Object.values(entities)),
+    AuthModule,
     AreaModule,
     BusinessModule,
     CompanyModule,

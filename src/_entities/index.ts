@@ -1,9 +1,13 @@
 import {
+  Column,
+  Entity,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Business } from './Business.entity';
 import { Company } from './Company.entity';
@@ -14,6 +18,8 @@ import { CrawlingStatus } from './CrawlingStatus.entity';
 import { District } from './District.entity';
 import { Province } from './Province.entity';
 import { ProvinceCrawlingLog } from './ProvinceCrawlingLog.entity';
+import { User } from './User.entity';
+import { Role } from './UserRole.entity';
 import { Ward } from './Ward.entity';
 import { WebSource } from './WebSource.entity';
 
@@ -152,6 +158,44 @@ JoinColumn({ name: 'CrawlingStatusId' })(
   'crawlingStatus',
 );
 
+// User entity relationships
+Entity('User')(User);
+PrimaryGeneratedColumn()(User.prototype, 'id');
+Column({ unique: true })(User.prototype, 'username');
+Column({ nullable: true })(User.prototype, 'password');
+Column({ nullable: true })(User.prototype, 'email');
+Column({ nullable: true })(User.prototype, 'googleId');
+Column({
+  type: 'simple-array',
+  default: 'user',
+})(User.prototype, 'roles');
+ManyToMany(
+  () => Role,
+  (role) => role.users,
+)(User.prototype, 'roleObjects');
+JoinTable()(User.prototype, 'roleObjects');
+Column({ default: true })(User.prototype, 'isActive');
+Column({ type: 'datetime2', default: () => 'GETDATE()' })(
+  User.prototype,
+  'createdAt',
+);
+Column({ type: 'datetime2', default: () => 'GETDATE()' })(
+  User.prototype,
+  'updatedAt',
+);
+Column({ type: 'datetime2', nullable: true })(User.prototype, 'deletedAt');
+Column({ type: 'datetime2', nullable: true })(User.prototype, 'lastLogin');
+
+// UserRole entity relationships
+Entity('UserRole')(Role);
+PrimaryGeneratedColumn()(Role.prototype, 'id');
+Column({ unique: true })(Role.prototype, 'name');
+Column({ nullable: true })(Role.prototype, 'description');
+ManyToMany(
+  () => User,
+  (user) => user.roleObjects,
+)(Role.prototype, 'users');
+
 // Export all entities
 export {
   Business,
@@ -163,6 +207,8 @@ export {
   District,
   Province,
   ProvinceCrawlingLog,
+  Role,
+  User,
   Ward,
   WebSource,
 };

@@ -38,4 +38,12 @@ export interface EnvironmentVariables {
   RABBITMQ_PORT?: number;
 
   CRAWLER_PROXIES?: string | string[];
+
+  JWT_SECRET?: string;
+
+  GOOGLE_CLIENT_ID?: string;
+
+  GOOGLE_CLIENT_SECRET?: string;
+
+  GOOGLE_CALLBACK_URL?: string;
 }
