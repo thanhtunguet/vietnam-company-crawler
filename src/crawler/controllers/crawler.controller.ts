@@ -1,14 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Inject } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CrawlerService } from '../services/crawler.service';
-import { CrawlerProxyService } from '../services/crawler.proxy.service';
+import { ProvinceData } from '../abstract-crawler.adapter';
+import { InfoDoanhNghiepAdapter } from '../adapters/infodoanhnghiep.adapter';
 import { ProxyAddressDto } from '../dtos/proxy-address.dto';
+import { CrawlerProxyService } from '../services/crawler.proxy.service';
 
 @ApiTags('Crawler')
 @Controller('/api/crawler')
 export class CrawlerController {
   constructor(
-    private readonly crawlerService: CrawlerService,
+    @Inject('InfoDoanhNghiepAdapter')
+    private readonly infoDoanhNghiepAdapter: InfoDoanhNghiepAdapter,
     private readonly crawlerProxyService: CrawlerProxyService,
   ) {}
 
@@ -36,5 +38,27 @@ export class CrawlerController {
       console.error('Error fetching public IPs:', error);
       return [];
     }
+  }
+
+  @Get('/provinces')
+  @ApiResponse({
+    type: [ProvinceData],
+  })
+  public async getProvinces(): Promise<ProvinceData[]> {
+    return this.infoDoanhNghiepAdapter.getProvinceData();
+  }
+
+  @Get('/trigger-all')
+  @ApiResponse({
+    type: String,
+  })
+  public async triggerAll() {
+    try {
+      this.infoDoanhNghiepAdapter.crawlAll();
+    } catch (error) {
+      console.error('Error triggering all crawlers:', error);
+      return 'Error triggering all crawlers';
+    }
+    return 'All crawling tasks triggered';
   }
 }

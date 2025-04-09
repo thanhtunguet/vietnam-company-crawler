@@ -63,8 +63,9 @@ export class CompanyDto {
     description: 'Number of staff',
     example: '50',
     required: false,
+    type: Number,
   })
-  numberOfStaffs: string | null;
+  numberOfStaffs: number | null;
 
   @ApiProperty({
     description: 'Current status',
@@ -126,10 +127,10 @@ export class CompanyDto {
   taxAuthority: string | null;
 
   // Related entities will be added in index.ts to avoid circular dependency
-  province: any;
-  district: any;
-  ward: any;
-  status: any;
-  companyBusinessMappings: any[];
-  companyCrawlingLogs: any[];
+  province?: any;
+  district?: any;
+  ward?: any;
+  status?: any;
+  companyBusinessMappings?: any[];
+  companyCrawlingLogs?: any[];
 }

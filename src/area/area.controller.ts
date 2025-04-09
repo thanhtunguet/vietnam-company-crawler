@@ -21,13 +21,13 @@ export class AreaController {
     return this.areaService.getProvinces(query);
   }
 
-  @Get('/provinces/:provinceId')
   @ApiResponse({
     type: ProvinceDto,
     description: 'Province details',
     status: 200,
   })
-  async province(
+  @Get('/provinces/:provinceId')
+  public async province(
     @Param('provinceId') provinceId: string,
   ): Promise<ProvinceDto> {
     const province = await this.areaService.getProvince(Number(provinceId));

@@ -35,11 +35,11 @@ export class ProvinceDto {
   englishName: string | null;
 
   // Districts will be added in index.ts to avoid circular dependency
-  districts: any[];
+  districts?: any[];
 
   // Companies will be added in index.ts to avoid circular dependency
-  companies: any[];
+  companies?: any[];
 
   // ProvinceCrawlingLogs will be added in index.ts to avoid circular dependency
-  provinceCrawlingLogs: any[];
+  provinceCrawlingLogs?: any[];
 }

@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as entities from 'src/_entities';
 import { EnvironmentVariables } from 'src/_types/EnvironmentVariables';
-import { OpenaiModule } from './openai/openai.module';
+import { validateConfiguration } from './_config/config';
 import { AreaModule } from './area/area.module';
 import { CompanyModule } from './company/company.module';
 import { CrawlerModule } from './crawler/crawler.module';
-import { validateConfiguration } from './_config/config';
+import { DebugService } from './debug/debug.service';
+import { OpenaiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -19,6 +21,7 @@ import { validateConfiguration } from './_config/config';
       },
       validate: validateConfiguration,
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -38,10 +41,12 @@ import { validateConfiguration } from './_config/config';
         },
       }),
     }),
+    TypeOrmModule.forFeature(Object.values(entities)),
     OpenaiModule,
     AreaModule,
     CompanyModule,
     CrawlerModule,
   ],
+  providers: [DebugService],
 })
 export class AppModule {}

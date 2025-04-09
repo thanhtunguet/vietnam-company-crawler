@@ -43,15 +43,15 @@ export class InfoDoanhNghiepAdapter
   private companyStatuses: Record<string, CompanyStatus> = {};
 
   constructor(
+    private readonly configService: ConfigService,
+    private readonly areaService: AreaService,
+    private readonly crawlerUtilsService: CralwerUtilsService,
     @InjectRepository(Company)
-    private readonly companyRepository: Repository<Company>,
+    protected readonly childCompanyRepository: Repository<Company>,
     @InjectRepository(CompanyStatus)
     private readonly companyStatusRepository: Repository<CompanyStatus>,
-    private readonly areaService: AreaService,
-    private readonly configService: ConfigService,
-    private readonly crawlerUtilsService: CralwerUtilsService,
   ) {
-    super();
+    super(childCompanyRepository);
   }
 
   public async onModuleInit() {
@@ -133,14 +133,12 @@ export class InfoDoanhNghiepAdapter
 
     const handleAddress = this.handleAddress;
 
-    const getCompanySlug = this.getCompanySlug;
-
     $('.company-item').each(function () {
       const company: Partial<CompanyDetails> = {};
 
       const anchor = $(this).children().toArray()[1].children[0];
 
-      company.link = getCompanySlug($(anchor).attr('href'));
+      company.link = $(anchor).attr('href');
 
       company.name = $(anchor).text().trim();
 
@@ -365,3 +363,8 @@ export class InfoDoanhNghiepAdapter
     } as Company;
   }
 }
+
+export const InfoDoanhNghiepAdapterProvider = {
+  provide: 'InfoDoanhNghiepAdapter',
+  useClass: InfoDoanhNghiepAdapter,
+};

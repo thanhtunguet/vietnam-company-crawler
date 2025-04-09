@@ -1,243 +1,173 @@
-export { Business } from './Business';
+import {
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
+import { Business } from './Business.entity';
+import { Company } from './Company.entity';
+import { CompanyBusinessMapping } from './CompanyBusinessMapping.entity';
+import { CompanyCrawlingLog } from './CompanyCrawlingLog.entity';
+import { CompanyStatus } from './CompanyStatus.entity';
+import { CrawlingStatus } from './CrawlingStatus.entity';
+import { District } from './District.entity';
+import { Province } from './Province.entity';
+import { ProvinceCrawlingLog } from './ProvinceCrawlingLog.entity';
+import { Ward } from './Ward.entity';
+import { WebSource } from './WebSource.entity';
 
-export { Company } from './Company';
+// Business entity relationships
+ManyToMany(
+  () => Company,
+  (company) => company.businesses,
+)(Business.prototype, 'companies');
+OneToMany(
+  () => CompanyBusinessMapping,
+  (mapping) => mapping.business,
+)(Business.prototype, 'companyMappings');
 
-export { CompanyBusinessMapping } from './CompanyBusinessMapping';
+// Company entity relationships
+ManyToOne(() => CompanyStatus)(Company.prototype, 'status');
+JoinColumn({ name: 'StatusId' })(Company.prototype, 'status');
+ManyToMany(
+  () => Business,
+  (business) => business.companies,
+)(Company.prototype, 'businesses');
+OneToMany(
+  () => CompanyBusinessMapping,
+  (mapping) => mapping.company,
+)(Company.prototype, 'businessMappings');
+OneToOne(
+  () => CompanyCrawlingLog,
+  (log) => log.company,
+)(Company.prototype, 'crawlingLog');
 
-export { CompanyCrawlingLog } from './CompanyCrawlingLog';
+// CompanyBusinessMapping entity relationships
+ManyToOne(
+  () => Company,
+  (company) => company.businessMappings,
+)(CompanyBusinessMapping.prototype, 'company');
+JoinColumn({ name: 'CompanyId' })(CompanyBusinessMapping.prototype, 'company');
+ManyToOne(
+  () => Business,
+  (business) => business.companyMappings,
+)(CompanyBusinessMapping.prototype, 'business');
+JoinColumn({ name: 'BusinessId' })(
+  CompanyBusinessMapping.prototype,
+  'business',
+);
 
-export { CompanyStatus } from './CompanyStatus';
+// CompanyStatus entity relationships
+OneToMany(
+  () => Company,
+  (company) => company.status,
+)(CompanyStatus.prototype, 'companies');
 
-export { CrawlingStatus } from './CrawlingStatus';
+// CrawlingStatus entity relationships
+OneToMany(
+  () => CompanyCrawlingLog,
+  (log) => log.crawlingStatus,
+)(CrawlingStatus.prototype, 'companyLogs');
+OneToMany(
+  () => ProvinceCrawlingLog,
+  (log) => log.crawlingStatus,
+)(CrawlingStatus.prototype, 'provinceLogs');
 
-export { District } from './District';
+// District entity relationships
+ManyToOne(
+  () => Province,
+  (province) => province.districts,
+)(District.prototype, 'province');
+JoinColumn({ name: 'ProvinceId' })(District.prototype, 'province');
+OneToMany(
+  () => Ward,
+  (ward) => ward.district,
+)(District.prototype, 'wards');
 
-export { Province } from './Province';
+// Province entity relationships
+OneToMany(
+  () => District,
+  (district) => district.province,
+)(Province.prototype, 'districts');
+OneToOne(
+  () => ProvinceCrawlingLog,
+  (log) => log.province,
+)(Province.prototype, 'crawlingLog');
 
-export { ProvinceCrawlingLog } from './ProvinceCrawlingLog';
+// Ward entity relationships
+ManyToOne(
+  () => District,
+  (district) => district.wards,
+)(Ward.prototype, 'district');
+JoinColumn({ name: 'DistrictId' })(Ward.prototype, 'district');
 
-export { Ward } from './Ward';
+// WebSource entity relationships
+OneToMany(
+  () => CompanyCrawlingLog,
+  (log) => log.webSource,
+)(WebSource.prototype, 'companyLogs');
+OneToMany(
+  () => ProvinceCrawlingLog,
+  (log) => log.webSource,
+)(WebSource.prototype, 'provinceLogs');
 
-export { WebSource } from './WebSource';
+// CompanyCrawlingLog entity relationships
+OneToOne(
+  () => Company,
+  (company) => company.crawlingLog,
+)(CompanyCrawlingLog.prototype, 'company');
+JoinColumn({ name: 'CompanyId' })(CompanyCrawlingLog.prototype, 'company');
+ManyToOne(
+  () => WebSource,
+  (webSource) => webSource.companyLogs,
+)(CompanyCrawlingLog.prototype, 'webSource');
+JoinColumn({ name: 'WebSourceId' })(CompanyCrawlingLog.prototype, 'webSource');
+ManyToOne(
+  () => CrawlingStatus,
+  (status) => status.companyLogs,
+)(CompanyCrawlingLog.prototype, 'crawlingStatus');
+JoinColumn({ name: 'CrawlingStatusId' })(
+  CompanyCrawlingLog.prototype,
+  'crawlingStatus',
+);
 
-import { OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+// ProvinceCrawlingLog entity relationships
+OneToOne(
+  () => Province,
+  (province) => province.crawlingLog,
+)(ProvinceCrawlingLog.prototype, 'province');
+JoinColumn({ name: 'ProvinceId' })(ProvinceCrawlingLog.prototype, 'province');
+ManyToOne(
+  () => WebSource,
+  (webSource) => webSource.provinceLogs,
+)(ProvinceCrawlingLog.prototype, 'webSource');
+JoinColumn({ name: 'WebSourceId' })(ProvinceCrawlingLog.prototype, 'webSource');
+ManyToOne(
+  () => CrawlingStatus,
+  (status) => status.provinceLogs,
+)(ProvinceCrawlingLog.prototype, 'crawlingStatus');
+JoinColumn({ name: 'CrawlingStatusId' })(
+  ProvinceCrawlingLog.prototype,
+  'crawlingStatus',
+);
 
-import { Business } from './Business';
-import { Company } from './Company';
-import { CompanyBusinessMapping } from './CompanyBusinessMapping';
-import { CompanyCrawlingLog } from './CompanyCrawlingLog';
-import { CompanyStatus } from './CompanyStatus';
-import { CrawlingStatus } from './CrawlingStatus';
-import { District } from './District';
-import { Province } from './Province';
-import { ProvinceCrawlingLog } from './ProvinceCrawlingLog';
-import { Ward } from './Ward';
-import { WebSource } from './WebSource';
+// Export all entities
+export {
+  Business,
+  Company,
+  CompanyBusinessMapping,
+  CompanyCrawlingLog,
+  CompanyStatus,
+  CrawlingStatus,
+  District,
+  Province,
+  ProvinceCrawlingLog,
+  Ward,
+  WebSource,
+};
 
-/**
- * Decorates all entity relationships after all classes are defined
- * This avoids the "Class used before defined" error in circular dependencies
- */
-export function decorateRelationships() {
-  // Business relationships
-  OneToMany(
-    () => Business,
-    (business) => business.parent,
-  )(Business.prototype, 'businesses');
-  OneToMany(
-    () => CompanyBusinessMapping,
-    (mapping) => mapping.business,
-  )(Business.prototype, 'companyBusinessMappings');
-  ManyToOne(
-    () => Business,
-    (business) => business.businesses,
-  )(Business.prototype, 'parent');
-  JoinColumn([{ name: 'ParentId', referencedColumnName: 'id' }])(
-    Business.prototype,
-    'parent',
-  );
-
-  // Company relationships
-  OneToMany(
-    () => CompanyBusinessMapping,
-    (mapping) => mapping.company,
-  )(Company.prototype, 'companyBusinessMappings');
-  OneToMany(
-    () => CompanyCrawlingLog,
-    (log) => log.company,
-  )(Company.prototype, 'companyCrawlingLogs');
-  ManyToOne(
-    () => Province,
-    (province) => province.companies,
-  )(Company.prototype, 'province');
-  JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
-    Company.prototype,
-    'province',
-  );
-  ManyToOne(
-    () => District,
-    (district) => district.companies,
-  )(Company.prototype, 'district');
-  JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])(
-    Company.prototype,
-    'district',
-  );
-  ManyToOne(
-    () => Ward,
-    (ward) => ward.companies,
-  )(Company.prototype, 'ward');
-  JoinColumn([{ name: 'WardId', referencedColumnName: 'id' }])(
-    Company.prototype,
-    'ward',
-  );
-  ManyToOne(
-    () => CompanyStatus,
-    (status) => status.companies,
-  )(Company.prototype, 'status');
-  JoinColumn([{ name: 'StatusId', referencedColumnName: 'id' }])(
-    Company.prototype,
-    'status',
-  );
-
-  // CompanyBusinessMapping relationships
-  ManyToOne(
-    () => Business,
-    (business) => business.companyBusinessMappings,
-  )(CompanyBusinessMapping.prototype, 'business');
-  JoinColumn([{ name: 'BusinessId', referencedColumnName: 'id' }])(
-    CompanyBusinessMapping.prototype,
-    'business',
-  );
-  ManyToOne(
-    () => Company,
-    (company) => company.companyBusinessMappings,
-  )(CompanyBusinessMapping.prototype, 'company');
-  JoinColumn([{ name: 'CompanyId', referencedColumnName: 'id' }])(
-    CompanyBusinessMapping.prototype,
-    'company',
-  );
-
-  // CompanyCrawlingLog relationships
-  ManyToOne(
-    () => Company,
-    (company) => company.companyCrawlingLogs,
-  )(CompanyCrawlingLog.prototype, 'company');
-  JoinColumn([{ name: 'CompanyId', referencedColumnName: 'id' }])(
-    CompanyCrawlingLog.prototype,
-    'company',
-  );
-  ManyToOne(
-    () => WebSource,
-    (source) => source.companyCrawlingLogs,
-  )(CompanyCrawlingLog.prototype, 'webSource');
-  JoinColumn([{ name: 'WebSourceId', referencedColumnName: 'id' }])(
-    CompanyCrawlingLog.prototype,
-    'webSource',
-  );
-  ManyToOne(
-    () => CrawlingStatus,
-    (status) => status.companyCrawlingLogs,
-  )(CompanyCrawlingLog.prototype, 'crawlingStatus');
-  JoinColumn([{ name: 'CrawlingStatusId', referencedColumnName: 'id' }])(
-    CompanyCrawlingLog.prototype,
-    'crawlingStatus',
-  );
-
-  // CompanyStatus relationships
-  OneToMany(
-    () => Company,
-    (company) => company.status,
-  )(CompanyStatus.prototype, 'companies');
-
-  // CrawlingStatus relationships
-  OneToMany(
-    () => CompanyCrawlingLog,
-    (log) => log.crawlingStatus,
-  )(CrawlingStatus.prototype, 'companyCrawlingLogs');
-  OneToMany(
-    () => ProvinceCrawlingLog,
-    (log) => log.crawlingStatus,
-  )(CrawlingStatus.prototype, 'provinceCrawlingLogs');
-
-  // District relationships
-  OneToMany(
-    () => Company,
-    (company) => company.district,
-  )(District.prototype, 'companies');
-  OneToMany(
-    () => Ward,
-    (ward) => ward.district,
-  )(District.prototype, 'wards');
-  ManyToOne(
-    () => Province,
-    (province) => province.districts,
-  )(District.prototype, 'province');
-  JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
-    District.prototype,
-    'province',
-  );
-
-  // Province relationships
-  OneToMany(
-    () => Company,
-    (company) => company.province,
-  )(Province.prototype, 'companies');
-  OneToMany(
-    () => District,
-    (district) => district.province,
-  )(Province.prototype, 'districts');
-  OneToMany(
-    () => ProvinceCrawlingLog,
-    (log) => log.province,
-  )(Province.prototype, 'provinceCrawlingLogs');
-
-  // ProvinceCrawlingLog relationships
-  ManyToOne(
-    () => CrawlingStatus,
-    (status) => status.provinceCrawlingLogs,
-  )(ProvinceCrawlingLog.prototype, 'crawlingStatus');
-  JoinColumn([{ name: 'CrawlingStatusId', referencedColumnName: 'id' }])(
-    ProvinceCrawlingLog.prototype,
-    'crawlingStatus',
-  );
-  ManyToOne(
-    () => WebSource,
-    (source) => source.provinceCrawlingLogs,
-  )(ProvinceCrawlingLog.prototype, 'webSource');
-  JoinColumn([{ name: 'WebSourceId', referencedColumnName: 'id' }])(
-    ProvinceCrawlingLog.prototype,
-    'webSource',
-  );
-  ManyToOne(
-    () => Province,
-    (province) => province.provinceCrawlingLogs,
-  )(ProvinceCrawlingLog.prototype, 'province');
-  JoinColumn([{ name: 'ProvinceId', referencedColumnName: 'id' }])(
-    ProvinceCrawlingLog.prototype,
-    'province',
-  );
-
-  // Ward relationships
-  OneToMany(
-    () => Company,
-    (company) => company.ward,
-  )(Ward.prototype, 'companies');
-  ManyToOne(
-    () => District,
-    (district) => district.wards,
-  )(Ward.prototype, 'district');
-  JoinColumn([{ name: 'DistrictId', referencedColumnName: 'id' }])(
-    Ward.prototype,
-    'district',
-  );
-
-  // WebSource relationships
-  OneToMany(
-    () => CompanyCrawlingLog,
-    (log) => log.webSource,
-  )(WebSource.prototype, 'companyCrawlingLogs');
-  OneToMany(
-    () => ProvinceCrawlingLog,
-    (log) => log.webSource,
-  )(WebSource.prototype, 'provinceCrawlingLogs');
-}
+// Note: Entity classes follow the convention:
+// - TypeScript property names are camelCase (e.g., 'statusId')
+// - Database column names are PascalCase (e.g., column name 'StatusId')
+// This convention should be used when defining new entities or modifying existing ones
