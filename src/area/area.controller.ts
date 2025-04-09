@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ProvinceDto } from 'src/_dtos';
+import { DistrictDto, ProvinceDto, WardDto } from 'src/_dtos';
 import { QueryFilterDto } from 'src/_filters/query-filter.dto';
 import { AreaService } from './area.service';
 
@@ -35,5 +35,83 @@ export class AreaController {
       throw new Error('Province not found');
     }
     return province;
+  }
+
+  @ApiResponse({
+    type: [DistrictDto],
+    description: 'List of districts',
+    status: 200,
+  })
+  @Get('/districts')
+  public async districts(
+    @Query() query: QueryFilterDto,
+  ): Promise<DistrictDto[]> {
+    return this.areaService.getDistricts(query);
+  }
+
+  @ApiResponse({
+    type: DistrictDto,
+    description: 'District details',
+    status: 200,
+  })
+  @Get('/districts/:districtId')
+  public async district(
+    @Param('districtId') districtId: string,
+  ): Promise<DistrictDto> {
+    const district = await this.areaService.getDistrict(Number(districtId));
+    if (!district) {
+      throw new Error('District not found');
+    }
+    return district;
+  }
+
+  @ApiResponse({
+    type: [DistrictDto],
+    description: 'List of districts in a province',
+    status: 200,
+  })
+  @Get('/provinces/:provinceId/districts')
+  public async districtsByProvince(
+    @Param('provinceId') provinceId: string,
+    @Query() query: QueryFilterDto,
+  ): Promise<DistrictDto[]> {
+    return this.areaService.getDistrictsByProvince(Number(provinceId), query);
+  }
+
+  @ApiResponse({
+    type: [WardDto],
+    description: 'List of wards',
+    status: 200,
+  })
+  @Get('/wards')
+  public async wards(@Query() query: QueryFilterDto): Promise<WardDto[]> {
+    return this.areaService.getWards(query);
+  }
+
+  @ApiResponse({
+    type: WardDto,
+    description: 'Ward details',
+    status: 200,
+  })
+  @Get('/wards/:wardId')
+  public async ward(@Param('wardId') wardId: string): Promise<WardDto> {
+    const ward = await this.areaService.getWard(Number(wardId));
+    if (!ward) {
+      throw new Error('Ward not found');
+    }
+    return ward;
+  }
+
+  @ApiResponse({
+    type: [WardDto],
+    description: 'List of wards in a district',
+    status: 200,
+  })
+  @Get('/districts/:districtId/wards')
+  public async wardsByDistrict(
+    @Param('districtId') districtId: string,
+    @Query() query: QueryFilterDto,
+  ): Promise<WardDto[]> {
+    return this.areaService.getWardsByDistrict(Number(districtId), query);
   }
 }

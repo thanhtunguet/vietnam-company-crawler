@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { CompanyDto } from './company.dto';
+import type { DistrictDto } from './district.dto';
 
 export class WardDto {
   @ApiProperty({ description: 'Ward ID', example: 1 })
@@ -35,8 +37,8 @@ export class WardDto {
   englishName: string | null;
 
   // District will be added in index.ts to avoid circular dependency
-  district: any;
+  district?: DistrictDto;
 
   // Companies will be added in index.ts to avoid circular dependency
-  companies: any[];
+  companies?: CompanyDto[];
 }

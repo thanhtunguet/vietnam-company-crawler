@@ -116,4 +116,116 @@ export class AreaService implements OnModuleInit {
       relations: ['districts', 'districts.wards'],
     });
   }
+
+  public async getDistricts(query: QueryFilterDto): Promise<District[]> {
+    const { skip, take, search, orderBy, order } = query;
+    const where = [];
+    if (search) {
+      where.push({
+        name: Like(`%${search}%`),
+      });
+      where.push({
+        code: Like(`${search}%`),
+      });
+    }
+    const orderQuery = {};
+    if (orderBy) {
+      orderQuery[orderBy] = order;
+    }
+    return this.districtRepository.find({
+      skip,
+      take,
+      order: orderQuery,
+      where,
+      relations: ['province'],
+    });
+  }
+
+  public async getDistrict(id: number): Promise<District | null> {
+    return this.districtRepository.findOne({
+      where: { id },
+      relations: ['province', 'wards'],
+    });
+  }
+
+  public async getDistrictsByProvince(
+    provinceId: number,
+    query: QueryFilterDto,
+  ): Promise<District[]> {
+    const { skip, take, search, orderBy, order } = query;
+    const where: any = { province: { id: provinceId } };
+
+    if (search) {
+      where.name = Like(`%${search}%`);
+    }
+
+    const orderQuery = {};
+    if (orderBy) {
+      orderQuery[orderBy] = order;
+    }
+
+    return this.districtRepository.find({
+      where,
+      skip,
+      take,
+      order: orderQuery,
+      relations: ['province'],
+    });
+  }
+
+  public async getWards(query: QueryFilterDto): Promise<Ward[]> {
+    const { skip, take, search, orderBy, order } = query;
+    const where = [];
+    if (search) {
+      where.push({
+        name: Like(`%${search}%`),
+      });
+      where.push({
+        code: Like(`${search}%`),
+      });
+    }
+    const orderQuery = {};
+    if (orderBy) {
+      orderQuery[orderBy] = order;
+    }
+    return this.wardRepository.find({
+      skip,
+      take,
+      order: orderQuery,
+      where,
+      relations: ['district', 'district.province'],
+    });
+  }
+
+  public async getWard(id: number): Promise<Ward | null> {
+    return this.wardRepository.findOne({
+      where: { id },
+      relations: ['district', 'district.province'],
+    });
+  }
+
+  public async getWardsByDistrict(
+    districtId: number,
+    query: QueryFilterDto,
+  ): Promise<Ward[]> {
+    const { skip, take, search, orderBy, order } = query;
+    const where: any = { district: { id: districtId } };
+
+    if (search) {
+      where.name = Like(`%${search}%`);
+    }
+
+    const orderQuery = {};
+    if (orderBy) {
+      orderQuery[orderBy] = order;
+    }
+
+    return this.wardRepository.find({
+      where,
+      skip,
+      take,
+      order: orderQuery,
+      relations: ['district', 'district.province'],
+    });
+  }
 }

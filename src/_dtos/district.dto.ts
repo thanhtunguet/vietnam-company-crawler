@@ -41,5 +41,5 @@ export class DistrictDto {
   wards: any[];
 
   // Companies will be added in index.ts to avoid circular dependency
-  companies: any[];
+  companies?: any[];
 }
