@@ -10,17 +10,13 @@ import { AuthModule } from './auth/auth.module';
 import { BusinessModule } from './business/business.module';
 import { CompanyModule } from './company/company.module';
 import { CrawlerModule } from './crawler/crawler.module';
-import { DebugService } from './debug/debug.service';
+import { DebugModule } from './debug/debug.module';
 import { OpenaiModule } from './openai/openai.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validationOptions: {
-        DB_HOST: 'string',
-        DB_PORT: 'number',
-      },
       validate: validateConfiguration,
     }),
     ScheduleModule.forRoot(),
@@ -43,7 +39,7 @@ import { OpenaiModule } from './openai/openai.module';
         },
       }),
     }),
-    TypeOrmModule.forFeature(Object.values(entities)),
+    DebugModule,
     AuthModule,
     AreaModule,
     BusinessModule,
@@ -51,6 +47,6 @@ import { OpenaiModule } from './openai/openai.module';
     OpenaiModule,
     CrawlerModule,
   ],
-  providers: [DebugService],
+  providers: [],
 })
 export class AppModule {}

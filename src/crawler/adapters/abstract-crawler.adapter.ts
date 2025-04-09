@@ -3,9 +3,9 @@ import { In, type Repository } from 'typeorm';
 import type { CompanyDetails } from '../dtos/company-details.dto';
 import type { ProvinceData } from '../dtos/province-data.dto';
 
-const concurrentPages = 6;
-
 export abstract class AbstractCrawlerAdapter {
+  protected concurrentPages = 6;
+
   constructor(protected readonly companyRepository: Repository<Company>) {}
 
   static getCompanyIdFromTaxCode(taxCode: string) {
@@ -42,12 +42,12 @@ export abstract class AbstractCrawlerAdapter {
         for (
           let page = 1;
           page <= province.numberOfPages;
-          page += concurrentPages
+          page += this.concurrentPages
         ) {
           const beg = new Date();
           const jobs = [this.crawlPage(province, page)];
           if (page < province.numberOfPages) {
-            for (let pIndex = 0; pIndex < concurrentPages; pIndex++) {
+            for (let pIndex = 0; pIndex < this.concurrentPages; pIndex++) {
               jobs.push(this.crawlPage(province, page + pIndex));
             }
           }
@@ -60,7 +60,7 @@ export abstract class AbstractCrawlerAdapter {
           // Update progress
           this.updateCrawlingProgress(
             province.name,
-            page + concurrentPages - 1,
+            page + this.concurrentPages - 1,
           );
         }
       }
@@ -80,11 +80,11 @@ export abstract class AbstractCrawlerAdapter {
           `Crawling first ${maxPage} pages of province ${province.name}`,
         );
 
-        for (let page = 1; page <= maxPage; page += concurrentPages) {
+        for (let page = 1; page <= maxPage; page += this.concurrentPages) {
           const beg = new Date();
           const jobs = [this.crawlPage(province, page)];
           if (page + 1 <= maxPage) {
-            for (let pIndex = 0; pIndex < concurrentPages; pIndex++) {
+            for (let pIndex = 0; pIndex < this.concurrentPages; pIndex++) {
               jobs.push(this.crawlPage(province, page + pIndex));
             }
           }
@@ -96,7 +96,7 @@ export abstract class AbstractCrawlerAdapter {
           );
           this.updateCrawlingProgress(
             province.name,
-            page + concurrentPages - 1,
+            page + this.concurrentPages - 1,
           );
         }
       }
@@ -120,12 +120,12 @@ export abstract class AbstractCrawlerAdapter {
       for (
         let page = 1;
         page <= province.numberOfPages;
-        page += concurrentPages
+        page += this.concurrentPages
       ) {
         const beg = new Date();
         const jobs = [this.crawlPage(province, page)];
         if (page < province.numberOfPages) {
-          for (let pIndex = 0; pIndex < concurrentPages; pIndex++) {
+          for (let pIndex = 0; pIndex < this.concurrentPages; pIndex++) {
             jobs.push(this.crawlPage(province, page + pIndex));
           }
         }
@@ -135,7 +135,10 @@ export abstract class AbstractCrawlerAdapter {
         console.log(
           `Crawled page ${page} of province ${province.name} in ${time} ms`,
         );
-        this.updateCrawlingProgress(province.name, page + concurrentPages - 1);
+        this.updateCrawlingProgress(
+          province.name,
+          page + this.concurrentPages - 1,
+        );
       }
       return true;
     } catch (error) {
@@ -168,12 +171,12 @@ export abstract class AbstractCrawlerAdapter {
         for (
           let page = startPage;
           page <= province.numberOfPages;
-          page += concurrentPages
+          page += this.concurrentPages
         ) {
           const beg = new Date();
           const jobs = [this.crawlPage(province, page)];
           if (page < province.numberOfPages) {
-            for (let pIndex = 0; pIndex < concurrentPages; pIndex++) {
+            for (let pIndex = 0; pIndex < this.concurrentPages; pIndex++) {
               jobs.push(this.crawlPage(province, page + pIndex));
             }
           }
@@ -185,7 +188,7 @@ export abstract class AbstractCrawlerAdapter {
           );
           this.updateCrawlingProgress(
             province.name,
-            page + concurrentPages - 1,
+            page + this.concurrentPages - 1,
           );
         }
       }

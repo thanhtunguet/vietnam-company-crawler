@@ -1,4 +1,4 @@
-Id,Name,EnglishName,Type,DistrictId,DistrictName,ProvinceId,ProvinceName
+id,name,englishName,type,districtId,districtName,provinceId,provinceName
 00001,Phường Phúc Xá,,Phường,001,Quận Ba Đình,01,Thành phố Hà Nội
 00004,Phường Trúc Bạch,,Phường,001,Quận Ba Đình,01,Thành phố Hà Nội
 00006,Phường Vĩnh Phúc,Vinh Phuc Commune,Phường,001,Quận Ba Đình,01,Thành phố Hà Nội

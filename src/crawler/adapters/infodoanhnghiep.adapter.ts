@@ -34,8 +34,6 @@ export class InfoDoanhNghiepAdapter
   extends AbstractCrawlerAdapter
   implements OnModuleInit
 {
-  private static CONCURRENT_JOBS = 5;
-
   private http: CrawlerHttpClient;
 
   private companyStatuses: Record<string, CompanyStatus> = {};
@@ -50,6 +48,7 @@ export class InfoDoanhNghiepAdapter
     private readonly companyStatusRepository: Repository<CompanyStatus>,
   ) {
     super(childCompanyRepository);
+    this.concurrentPages = 4;
   }
 
   public async onModuleInit() {
@@ -91,7 +90,7 @@ export class InfoDoanhNghiepAdapter
     });
 
     const CRAWLER_CONCURRENT_JOBS =
-      InfoDoanhNghiepAdapter.CONCURRENT_JOBS *
+      this.concurrentPages *
       this.configService.get<string[]>('CRAWLER_PROXIES').length;
 
     for (let i = 0; i < provinces.length; i += CRAWLER_CONCURRENT_JOBS) {
