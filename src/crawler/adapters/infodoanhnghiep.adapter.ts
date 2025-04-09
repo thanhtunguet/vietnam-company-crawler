@@ -21,13 +21,11 @@ import { splitArrayByLength } from 'src/_helpers/array';
 import { vietnameseSlugify } from 'src/_helpers/slugify';
 import { AreaService } from 'src/area/area.service';
 import { Repository } from 'typeorm';
-import {
-  AbstractCrawlerAdapter,
-  CompanyDetails,
-  ProvinceData,
-} from '../abstract-crawler.adapter';
 import { CrawlerHttpClient } from '../crawler.http-client';
+import type { CompanyDetails } from '../dtos/company-details.dto';
+import type { ProvinceData } from '../dtos/province-data.dto';
 import { CralwerUtilsService } from '../services/crawler.utils.service';
+import { AbstractCrawlerAdapter } from './abstract-crawler.adapter';
 
 const PER_PAGE = 20;
 
@@ -172,8 +170,11 @@ export class InfoDoanhNghiepAdapter
 
         Object.assign(company, {
           province,
+          provinceId: province?.id,
           district,
+          districtId: district?.id,
           ward,
+          wardId: ward?.id,
         });
 
         companies.push(company);
@@ -290,8 +291,11 @@ export class InfoDoanhNghiepAdapter
 
     Object.assign(company, {
       province,
+      provinceId: province?.id,
       district,
+      districtId: district?.id,
       ward,
+      wardId: ward?.id,
     });
 
     const statuses = this.companyStatuses;

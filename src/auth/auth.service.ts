@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/_entities';
-import { UserRole } from 'src/_entities/UserRole.entity';
+import { UserRole } from 'src/_entities/Role';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import type { GoogleUserDto } from './dto/google-user.dto';

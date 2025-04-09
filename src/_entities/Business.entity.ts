@@ -1,10 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { Company } from './Company.entity';
 import { CompanyBusinessMapping } from './CompanyBusinessMapping.entity';
 
 @Entity('Business')
 export class Business {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
   @Column('nvarchar', { name: 'Name', length: 255 })

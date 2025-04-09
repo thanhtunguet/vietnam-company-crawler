@@ -1,9 +1,9 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './User.entity';
 
-@Entity('UserRole')
+@Entity('Role')
 export class Role {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
   @Column({ unique: true })

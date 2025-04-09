@@ -1,7 +1,7 @@
-import { Controller, Get, Inject } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ProvinceData } from '../abstract-crawler.adapter';
+import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
+import { ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InfoDoanhNghiepAdapter } from '../adapters/infodoanhnghiep.adapter';
+import { ProvinceData } from '../dtos/province-data.dto';
 import { ProxyAddressDto } from '../dtos/proxy-address.dto';
 import { CrawlerProxyService } from '../services/crawler.proxy.service';
 
@@ -60,5 +60,78 @@ export class CrawlerController {
       return 'Error triggering all crawlers';
     }
     return 'All crawling tasks triggered';
+  }
+
+  @Get('/trigger-first-pages')
+  @ApiQuery({
+    name: 'pages',
+    type: Number,
+    required: true,
+    description: 'Number of pages to crawl per province',
+  })
+  @ApiResponse({
+    type: String,
+  })
+  public async triggerFirstPages(@Query('pages') pages: number) {
+    try {
+      if (!pages || isNaN(Number(pages)) || Number(pages) <= 0) {
+        return 'Invalid pages parameter, must be a positive number';
+      }
+
+      this.infoDoanhNghiepAdapter.crawlFirstNPages(Number(pages));
+      return `Started crawling first ${pages} pages for each province`;
+    } catch (error) {
+      console.error('Error triggering partial crawl:', error);
+      return 'Error triggering partial crawl';
+    }
+  }
+
+  @Get('/trigger-province/:provinceName')
+  @ApiParam({
+    name: 'provinceName',
+    type: String,
+    description: 'Name of the province to crawl',
+  })
+  @ApiResponse({
+    type: String,
+  })
+  public async triggerProvince(@Param('provinceName') provinceName: string) {
+    try {
+      this.infoDoanhNghiepAdapter.crawlProvince(provinceName);
+      return `Started crawling province: ${provinceName}`;
+    } catch (error) {
+      console.error(
+        `Error triggering province crawl for ${provinceName}:`,
+        error,
+      );
+      return `Error triggering province crawl for ${provinceName}`;
+    }
+  }
+
+  @Get('/resume')
+  @ApiResponse({
+    type: String,
+  })
+  public async resumeCrawling() {
+    try {
+      this.infoDoanhNghiepAdapter.resumeCrawling();
+      return 'Resumed crawling from last progress';
+    } catch (error) {
+      console.error('Error resuming crawl:', error);
+      return 'Error resuming crawl';
+    }
+  }
+
+  @Get('/progress')
+  @ApiResponse({
+    type: Object,
+  })
+  public getCrawlingProgress() {
+    try {
+      return this.infoDoanhNghiepAdapter.getCrawlingProgress();
+    } catch (error) {
+      console.error('Error getting crawl progress:', error);
+      return { error: 'Error getting crawl progress' };
+    }
   }
 }

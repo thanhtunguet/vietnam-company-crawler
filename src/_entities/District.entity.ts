@@ -1,10 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Company } from './Company.entity';
 import { Province } from './Province.entity';
 import { Ward } from './Ward.entity';
 
 @Entity('District')
 export class District {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
   @Column('nvarchar', { name: 'Name', length: 100 })
@@ -34,4 +35,7 @@ export class District {
   // Relationships (defined in index.ts)
   province: Province;
   wards: Ward[];
+
+  // This relationship will be defined in index.ts
+  companies: Company[];
 }

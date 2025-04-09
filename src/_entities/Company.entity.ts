@@ -1,12 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { CompanyStatus } from './CompanyStatus.entity';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { Business } from './Business.entity';
 import { CompanyBusinessMapping } from './CompanyBusinessMapping.entity';
 import { CompanyCrawlingLog } from './CompanyCrawlingLog.entity';
+import { CompanyStatus } from './CompanyStatus.entity';
+import { District } from './District.entity';
+import { Province } from './Province.entity';
+import { Ward } from './Ward.entity';
 
 @Entity('Company')
 export class Company {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
   @Column('nvarchar', { name: 'Name', length: 255 })
@@ -83,9 +86,23 @@ export class Company {
   @Column('datetime2', { name: 'DeletedAt', nullable: true })
   deletedAt: Date;
 
+  @Column('bigint', { name: 'ProvinceId', nullable: true })
+  provinceId: number;
+
+  @Column('bigint', { name: 'DistrictId', nullable: true })
+  districtId: number;
+
+  @Column('bigint', { name: 'WardId', nullable: true })
+  wardId: number;
+
   // Relationships (defined in index.ts)
   status: CompanyStatus;
   businesses: Business[];
   businessMappings: CompanyBusinessMapping[];
   crawlingLog: CompanyCrawlingLog;
+
+  // These relationships will be defined in index.ts
+  province: Province;
+  district: District;
+  ward: Ward;
 }

@@ -1,11 +1,11 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Company } from './Company.entity';
-import { WebSource } from './WebSource.entity';
 import { CrawlingStatus } from './CrawlingStatus.entity';
+import { WebSource } from './WebSource.entity';
 
 @Entity('CompanyCrawlingLog')
 export class CompanyCrawlingLog {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
   @Column('bigint', { name: 'CompanyId', unique: true })

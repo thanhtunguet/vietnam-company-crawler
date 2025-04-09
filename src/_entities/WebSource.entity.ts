@@ -1,10 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { CompanyCrawlingLog } from './CompanyCrawlingLog.entity';
 import { ProvinceCrawlingLog } from './ProvinceCrawlingLog.entity';
 
 @Entity('WebSource')
 export class WebSource {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ type: 'bigint', name: 'Id' })
   id: number;
 
   @Column('nvarchar', { name: 'Name', length: 100, nullable: true })
