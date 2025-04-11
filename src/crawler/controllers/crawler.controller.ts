@@ -62,6 +62,93 @@ export class CrawlerController {
     return 'All crawling tasks triggered';
   }
 
+  @Get('/trigger-smallest-first')
+  @ApiResponse({
+    type: String,
+    description:
+      'Triggers crawling of provinces ordered by size (smallest first)',
+  })
+  public async triggerSmallestFirst() {
+    try {
+      this.infoDoanhNghiepAdapter.crawlSmallestFirst();
+      return 'Started crawling provinces from smallest to largest';
+    } catch (error) {
+      console.error('Error triggering smallest-first crawl:', error);
+      return 'Error triggering smallest-first crawl';
+    }
+  }
+
+  @Get('/trigger-last-pages')
+  @ApiQuery({
+    name: 'pages',
+    type: Number,
+    required: true,
+    description: 'Number of last pages to crawl per province',
+  })
+  @ApiResponse({
+    type: String,
+  })
+  public async triggerLastPages(@Query('pages') pages: number) {
+    try {
+      if (!pages || isNaN(Number(pages)) || Number(pages) <= 0) {
+        return 'Invalid pages parameter, must be a positive number';
+      }
+
+      this.infoDoanhNghiepAdapter.crawlLastNPages(Number(pages));
+      return `Started crawling last ${pages} pages for each province`;
+    } catch (error) {
+      console.error('Error triggering last pages crawl:', error);
+      return 'Error triggering last pages crawl';
+    }
+  }
+
+  @Get('/trigger-page-range')
+  @ApiQuery({
+    name: 'fromPage',
+    type: Number,
+    required: true,
+    description: 'Starting page number (inclusive)',
+  })
+  @ApiQuery({
+    name: 'toPage',
+    type: Number,
+    required: true,
+    description: 'Ending page number (inclusive)',
+  })
+  @ApiResponse({
+    type: String,
+  })
+  public async triggerPageRange(
+    @Query('fromPage') fromPage: number,
+    @Query('toPage') toPage: number,
+  ) {
+    try {
+      if (
+        !fromPage ||
+        isNaN(Number(fromPage)) ||
+        Number(fromPage) <= 0 ||
+        !toPage ||
+        isNaN(Number(toPage)) ||
+        Number(toPage) <= 0
+      ) {
+        return 'Invalid page parameters, must be positive numbers';
+      }
+
+      if (Number(fromPage) > Number(toPage)) {
+        return 'fromPage must be less than or equal to toPage';
+      }
+
+      this.infoDoanhNghiepAdapter.crawlPageRange(
+        Number(fromPage),
+        Number(toPage),
+      );
+      return `Started crawling pages ${fromPage} to ${toPage} for each province`;
+    } catch (error) {
+      console.error('Error triggering page range crawl:', error);
+      return 'Error triggering page range crawl';
+    }
+  }
+
   @Get('/trigger-first-pages')
   @ApiQuery({
     name: 'pages',
