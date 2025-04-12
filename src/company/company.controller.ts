@@ -29,6 +29,15 @@ export class CompanyController {
     return this.companyService.findAll(filter);
   }
 
+  @Get('count')
+  @ApiResponse({
+    type: Number,
+    description: 'Get count of companies with filters',
+  })
+  public async count(@Query() filter: CompanyFilterDto): Promise<number> {
+    return this.companyService.count(filter);
+  }
+
   @Get(':id')
   @ApiResponse({
     type: CompanyDto,

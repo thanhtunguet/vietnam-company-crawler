@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CompanyDto } from 'src/_dtos';
 import { Company } from 'src/_entities';
 import { CompanyFilterDto } from 'src/_filters/company-filter.dto';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class CompanyService {
@@ -62,6 +62,42 @@ export class CompanyService {
     queryBuilder.skip(skip).take(take).orderBy(`company.${orderBy}`, order);
 
     return queryBuilder.getMany();
+  }
+
+  public async count(filter: CompanyFilterDto): Promise<number> {
+    const { search, code, name, provinceId, districtId, wardId } = filter;
+
+    const where = [];
+
+    if (provinceId) {
+      where.push({ provinceId });
+    }
+
+    if (districtId) {
+      where.push({ districtId });
+    }
+
+    if (wardId) {
+      where.push({ wardId });
+    }
+
+    if (search) {
+      where.push({
+        name: Like(`${search}%`),
+      });
+    } else {
+      if (code) {
+        where.push({ code: Like(`${code}%`) });
+      }
+
+      if (name) {
+        where.push({ name: Like(`${name}%`) });
+      }
+    }
+
+    return this.companyRepository.count({
+      where,
+    });
   }
 
   public async findOne(id: number): Promise<Company> {

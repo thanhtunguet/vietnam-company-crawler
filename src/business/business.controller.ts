@@ -8,7 +8,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BusinessService } from './business.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { SearchBusinessDto } from './dto/search-business.dto';
@@ -27,6 +27,15 @@ export class BusinessController {
   @Get()
   findAll() {
     return this.businessService.findAll();
+  }
+
+  @Get('count')
+  @ApiResponse({
+    type: Number,
+    description: 'Get count of businesses based on filters',
+  })
+  count(@Query() searchDto: SearchBusinessDto) {
+    return this.businessService.count(searchDto);
   }
 
   @Get('search')

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Business } from 'src/_entities';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { SearchBusinessDto } from './dto/search-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
@@ -36,6 +36,24 @@ export class BusinessService {
     }
 
     return queryBuilder.skip(skip).take(take).getManyAndCount();
+  }
+
+  async count(searchDto: SearchBusinessDto): Promise<number> {
+    const { code, name } = searchDto;
+
+    const where = [];
+
+    if (code) {
+      where.push({ code: Like(`${code}%`) });
+    }
+
+    if (name) {
+      where.push({ name: Like(`${name}%`) });
+    }
+
+    return this.businessRepository.count({
+      where,
+    });
   }
 
   async findOne(id: number): Promise<Business> {
