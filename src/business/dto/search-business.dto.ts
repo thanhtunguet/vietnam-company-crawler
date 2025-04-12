@@ -1,5 +1,5 @@
 import { IsOptional, IsString } from 'class-validator';
-import { QueryFilterDto } from '../../common/dto/query-filter.dto';
+import { QueryFilterDto } from 'src/_filters/query-filter.dto';
 
 export class SearchBusinessDto extends QueryFilterDto {
   @IsOptional()

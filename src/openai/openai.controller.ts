@@ -2,12 +2,12 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import axios from 'axios';
 import { load } from 'cheerio';
-import { OpenaiService } from './openai.service';
-import { CompanyParsingDto } from './dtos/company-parsing.dto';
 import {
   AddressParsingDto,
   AddressParsingResponseDto,
 } from './dtos/address-parsing.dto';
+import { CompanyParsingDto } from './dtos/company-parsing.dto';
+import { OpenaiService } from './openai.service';
 
 @ApiTags('OpenAI')
 @Controller('/api/openai')
