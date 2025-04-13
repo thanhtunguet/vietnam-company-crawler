@@ -1,11 +1,11 @@
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { snakeCase } from 'lodash';
+import { EnvironmentVariables } from 'src/_types/EnvironmentVariables';
 import { description, name, version } from '../package.json';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
-import { EnvironmentVariables } from 'src/_types/EnvironmentVariables';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
