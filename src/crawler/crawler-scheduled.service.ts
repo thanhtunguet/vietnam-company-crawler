@@ -15,6 +15,7 @@ export class CrawlerScheduledService implements OnModuleInit {
   ) {}
 
   public onModuleInit() {
+    console.log('CrawlerScheduledService initialized');
     this.logger.debug('CrawlerScheduledService initialized');
   }
 

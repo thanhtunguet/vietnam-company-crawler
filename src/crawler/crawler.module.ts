@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as entities from 'src/_entities';
 import { AreaModule } from 'src/area/area.module';
@@ -9,7 +10,11 @@ import { CrawlerProxyService } from './services/crawler.proxy.service';
 import { CralwerUtilsService } from './services/crawler.utils.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature(Object.values(entities)), AreaModule],
+  imports: [
+    TypeOrmModule.forFeature(Object.values(entities)),
+    AreaModule,
+    ScheduleModule.forRoot(),
+  ],
   providers: [
     CrawlerProxyService,
     CralwerUtilsService,
