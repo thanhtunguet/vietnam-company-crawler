@@ -1,4 +1,4 @@
-import { type Company } from 'src/_entities';
+import { Company } from 'src/_entities';
 import { In, type Repository } from 'typeorm';
 import type { CompanyDetails } from '../dtos/company-details.dto';
 import type { ProvinceData } from '../dtos/province-data.dto';
@@ -486,68 +486,75 @@ export abstract class AbstractCrawlerAdapter {
         }),
       ).then((results) => results.filter(Boolean));
 
-      const ids = companies.map((company) => company.id);
+      // Filter out companies with invalid IDs
+      const validCompanies = companies.filter(company => company && company.id && typeof company.id === 'number');
+      const ids = validCompanies.map((company) => company.id);
 
       try {
         // Check if there are any companies extracted before proceeding
-        if (companies.length === 0) {
+        if (validCompanies.length === 0) {
           console.log(
-            `No companies found on page ${page} of province ${province.name}`,
+            `No valid companies found on page ${page} of province ${province.name}`,
           );
           return;
         }
 
-        // First check if any companies already exist
-        const existingCompanies = await this.companyRepository.findBy({
-          id: In(ids.filter((id) => id !== null && id !== undefined)),
-        });
+        // Use a transaction to ensure atomicity
+        await this.companyRepository.manager.transaction(async (transactionalEntityManager) => {
+          // First check if any companies already exist
+          const existingCompanies = await transactionalEntityManager.findBy(Company, {
+            id: In(ids),
+          });
 
-        // If there are existing companies, delete them first
-        if (existingCompanies.length > 0) {
-          await this.companyRepository.delete(
-            existingCompanies.map((company) => company.id),
-          );
+          // If there are existing companies, delete them first
+          if (existingCompanies.length > 0) {
+            await transactionalEntityManager.delete(
+              Company,
+              existingCompanies.map((company) => company.id),
+            );
+            console.log(
+              `Deleted ${existingCompanies.length} existing companies on page ${page} of province ${province.name}`,
+            );
+          }
+
+          // Process companies to set foreign keys properly
+          const processedCompanies = validCompanies.map((company) => {
+            const processedCompany = { ...company };
+
+            // Set foreign key IDs correctly instead of relation objects
+            if (company.province) {
+              processedCompany.provinceId = company.province.id;
+              delete processedCompany.province;
+            }
+
+            if (company.district) {
+              processedCompany.districtId = company.district.id;
+              delete processedCompany.district;
+            }
+
+            if (company.ward) {
+              processedCompany.wardId = company.ward.id;
+              delete processedCompany.ward;
+            }
+
+            return processedCompany;
+          });
+
+          // Insert the extracted companies to database within the same transaction
+          await transactionalEntityManager.save(Company, processedCompanies, {
+            reload: false, // Don't reload entities after save to avoid relation loading issues
+          });
+
           console.log(
-            `Deleted ${existingCompanies.length} existing companies on page ${page} of province ${province.name}`,
+            `Inserted ${processedCompanies.length} companies on page ${page} of province ${province.name}`,
           );
-        }
-
-        // Process companies to set foreign keys properly
-        const validCompanies = companies.map((company) => {
-          const processedCompany = { ...company };
-
-          // Set foreign key IDs correctly instead of relation objects
-          if (company.province) {
-            processedCompany.provinceId = company.province.id;
-            delete processedCompany.province;
-          }
-
-          if (company.district) {
-            processedCompany.districtId = company.district.id;
-            delete processedCompany.district;
-          }
-
-          if (company.ward) {
-            processedCompany.wardId = company.ward.id;
-            delete processedCompany.ward;
-          }
-
-          return processedCompany;
         });
-
-        // Insert the extracted companies to database
-        await this.companyRepository.save(validCompanies, {
-          reload: false, // Don't reload entities after save to avoid relation loading issues
-        });
-
-        console.log(
-          `Inserted ${validCompanies.length} companies on page ${page} of province ${province.name}`,
-        );
       } catch (error) {
         console.error(
           `Database operation error on page ${page} of province ${province.name}:`,
           error,
         );
+        throw error; // Re-throw to ensure transaction rollback
       }
     } catch (error) {
       console.error(
