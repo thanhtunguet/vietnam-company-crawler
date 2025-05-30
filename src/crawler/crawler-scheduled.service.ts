@@ -19,7 +19,7 @@ export class CrawlerScheduledService implements OnModuleInit {
     this.logger.debug('CrawlerScheduledService initialized');
   }
 
-  @Cron('0 * 16 * * *')
+  @Cron('0 * 21 * * *')
   public async scheduleCrawlingAll() {
     this.logger.debug('Scheduled crawling for all at 16:00 every day');
     await this.infodoanhNghiepAdapter.crawlAll();

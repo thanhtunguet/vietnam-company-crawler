@@ -28,9 +28,9 @@ export class CrawlerController {
       const proxies = this.crawlerProxyService.proxyList;
       await Promise.all(
         proxies.map(async (proxy) => {
-          const publicAddress = await this.crawlerProxyService.get(
-            'https://api.ipify.org',
-          );
+          const publicAddress = (
+            await this.crawlerProxyService.get('https://icanhazip.com')
+          )?.trim();
           publicAddresses.push({
             proxy,
             publicAddress,
@@ -49,24 +49,28 @@ export class CrawlerController {
     type: [ProvinceData],
   })
   public async getProvinces(): Promise<ProvinceData[]> {
-    const provinceDataList = await this.infoDoanhNghiepAdapter.getProvinceData();
-    
-    const provinces = await this.areaService.getProvincesWithCompanyCount(new QueryFilterDto());
-    
+    const provinceDataList =
+      await this.infoDoanhNghiepAdapter.getProvinceData();
+
+    const provinces = await this.areaService.getProvincesWithCompanyCount(
+      new QueryFilterDto(),
+    );
+
     return provinceDataList.map((provinceData) => {
-      const slugName = vietnameseSlugify(provinceData.name.replace(/Tỉnh|Thành phố|TP\./, ''));
+      const slugName = vietnameseSlugify(
+        provinceData.name.replace(/Tỉnh|Thành phố|TP\./, ''),
+      );
 
       console.log(slugName);
-      
+
       const province = provinces.find((p) => slugName.includes(p.slug));
-      
+
       return {
         ...provinceData,
         currentCount: province.companyCount,
         slug: slugName,
       };
     });
-    
   }
 
   @Get('/trigger-all')

@@ -76,4 +76,16 @@ export class CompanyController {
   public async remove(@Param('id') id: number): Promise<boolean> {
     return this.companyService.remove(id);
   }
+
+  @Post('/reparse-missing-districts')
+  @ApiResponse({
+    description:
+      'Reparse addresses for companies with missing district information',
+    status: 200,
+    type: String,
+  })
+  public async reparseMissingDistricts() {
+    this.companyService.reparseMissingDistricts(); // Just ignore this
+    return 'Reparsing missing districts...';
+  }
 }

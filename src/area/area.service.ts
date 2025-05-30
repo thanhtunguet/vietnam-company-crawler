@@ -4,7 +4,7 @@ import { ProvinceWithCompanyCountDto } from 'src/_dtos/province-with-company-cou
 import { Company, District, Province, Ward } from 'src/_entities';
 import { QueryFilterDto } from 'src/_filters/query-filter.dto';
 import { vietnameseSlugify } from 'src/_helpers/slugify';
-import { IsNull, Like, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class AreaService implements OnModuleInit {
@@ -53,11 +53,15 @@ export class AreaService implements OnModuleInit {
     let district: District | undefined = undefined;
     let ward: Ward | undefined = undefined;
 
-    if (Object.prototype.hasOwnProperty.call(this.provinces, baseProvinceName)) {
+    if (
+      Object.prototype.hasOwnProperty.call(this.provinces, baseProvinceName)
+    ) {
       province = this.provinces[baseProvinceName];
     }
 
-    if (Object.prototype.hasOwnProperty.call(this.districts, baseDistrictName)) {
+    if (
+      Object.prototype.hasOwnProperty.call(this.districts, baseDistrictName)
+    ) {
       district = this.districts[baseDistrictName];
     }
 
@@ -66,7 +70,9 @@ export class AreaService implements OnModuleInit {
     }
 
     if (ward !== null && ward !== undefined && !district) {
-      district = Object.values(this.districts).find((d) => `${d.id}` === `${ward.districtId}`);
+      district = Object.values(this.districts).find(
+        (d) => `${d.id}` === `${ward.districtId}`,
+      );
     }
 
     return {
@@ -279,7 +285,9 @@ export class AreaService implements OnModuleInit {
     });
   }
 
-  public async getProvincesWithCompanyCount(query: QueryFilterDto): Promise<ProvinceWithCompanyCountDto[]> {
+  public async getProvincesWithCompanyCount(
+    query: QueryFilterDto,
+  ): Promise<ProvinceWithCompanyCountDto[]> {
     const { skip, take, search, orderBy, order } = query;
 
     const where = [];
@@ -305,7 +313,7 @@ export class AreaService implements OnModuleInit {
       const companyCount = await this.companyRepository.count({
         where: {
           provinceId: province.id,
-        }
+        },
       });
       results[province.id] = companyCount;
     }
@@ -313,83 +321,11 @@ export class AreaService implements OnModuleInit {
     return provinces.map((province) => {
       return {
         ...province,
-        slug: vietnameseSlugify(province.name.replace(/Tỉnh|Thành phố|TP\./, '')),
+        slug: vietnameseSlugify(
+          province.name.replace(/Tỉnh|Thành phố|TP\./, ''),
+        ),
         companyCount: results[province.id],
       };
     });
-  }
-
-  public async reparseCompaniesWithMissingDistrict(): Promise<{
-    total: number;
-    updated: number;
-    failed: number;
-  }> {
-    const BATCH_SIZE = 100;
-    const result = {
-      total: 0,
-      updated: 0,
-      failed: 0,
-    };
-
-    // First get total count
-    const totalCount = await this.companyRepository.count({
-      where: { districtId: IsNull() },
-    });
-    result.total = totalCount;
-
-    console.log(`Found ${totalCount} companies with missing district information`);
-
-    // Process in batches
-    for (let skip = 0; skip < totalCount; skip += BATCH_SIZE) {
-      console.log(`Processing batch ${skip / BATCH_SIZE + 1} of ${Math.ceil(totalCount / BATCH_SIZE)}`);
-      
-      const companies = await this.companyRepository.find({
-        where: { districtId: IsNull() },
-        select: ['id', 'name', 'address', 'provinceId', 'districtId', 'wardId'],
-        skip,
-        take: BATCH_SIZE,
-      });
-
-      for (const company of companies) {
-        try {
-          if (!company.address) {
-            console.log(`Company ${company.id} (${company.name}) has no address`);
-            result.failed++;
-            continue;
-          }
-
-          const { province, district, ward } = this.handleAddress(company.address);
-
-          const hasChanges = 
-            province?.id !== company.provinceId ||
-            district?.id !== company.districtId ||
-            ward?.id !== company.wardId;
-
-          if (hasChanges) {
-            await this.companyRepository.update(company.id, {
-              provinceId: province?.id,
-              districtId: district?.id,
-              wardId: ward?.id,
-            });
-            result.updated++;
-            console.log(`Updated company ${company.id} (${company.name}): ${company.address}`);
-          } else {
-            console.log(`No changes needed for company ${company.id} (${company.name}): ${company.address}`);
-          }
-        } catch (error: any) {
-          console.error(`Failed to process company ${company.id} (${company.name}): ${error?.message || 'Unknown error'}`);
-          result.failed++;
-        }
-      }
-
-      // Log batch progress
-      console.log(
-        `Batch ${skip / BATCH_SIZE + 1} completed. Progress: ${skip + companies.length}/${totalCount} ` +
-        `(Updated: ${result.updated}, Failed: ${result.failed})`
-      );
-    }
-
-    console.log(`Reparsing completed. Total: ${result.total}, Updated: ${result.updated}, Failed: ${result.failed}`);
-    return result;
   }
 }
