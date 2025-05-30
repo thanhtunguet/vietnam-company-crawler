@@ -18,7 +18,7 @@ export class AreaService implements OnModuleInit {
   public static getBaseDistrictName(districtName: string): string {
     return districtName
       .replace(
-        /H\.|Q\.|TX\.|Huyện\s|Quận\s|Thị xã\s|Thành phố\s*|TP\.?\s*/i,
+        /H[\.\s]*|Q[\.\s]*|TX[\.\s]*|Huyện\s*|Quận\s*|Thị xã\s*|Thành phố\s*|TP\.?\s*/i,
         '',
       )
       .toLowerCase()
@@ -27,7 +27,7 @@ export class AreaService implements OnModuleInit {
 
   public static getBaseWardName(wardName: string): string {
     return wardName
-      .replace(/P\.|X\.|Phường\s|Xã\s|Thị trấn\s*/, '')
+      .replace(/P[\.\s]*|X[\.\s]*|TT[\.\s]*|Phường\s*|Xã\s*|Thị trấn\s*/i, '')
       .toLowerCase()
       .trim();
   }
