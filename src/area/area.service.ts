@@ -17,14 +17,17 @@ export class AreaService implements OnModuleInit {
 
   public static getBaseDistrictName(districtName: string): string {
     return districtName
-      .replace(/Huyện\s|Quận\s|Thị xã\s|Thành phố\s*|TP\.?\s*/, '')
+      .replace(
+        /H\.|Q\.|TX\.|Huyện\s|Quận\s|Thị xã\s|Thành phố\s*|TP\.?\s*/i,
+        '',
+      )
       .toLowerCase()
       .trim();
   }
 
   public static getBaseWardName(wardName: string): string {
     return wardName
-      .replace(/Phường\s|Xã\s|Thị trấn\s*/, '')
+      .replace(/P\.|X\.|Phường\s|Xã\s|Thị trấn\s*/, '')
       .toLowerCase()
       .trim();
   }
@@ -59,10 +62,23 @@ export class AreaService implements OnModuleInit {
       province = this.provinces[baseProvinceName];
     }
 
+    const provinceDistricts = Object.values(this.districts).filter((d) => {
+      return Number(d.provinceId) === Number(province?.id);
+    });
+
+    const provinceDistrictMap = Object.fromEntries(
+      provinceDistricts.map((d) => {
+        return [vietnameseSlugify(AreaService.getBaseDistrictName(d.name)), d];
+      }),
+    );
+
     if (
-      Object.prototype.hasOwnProperty.call(this.districts, baseDistrictName)
+      Object.prototype.hasOwnProperty.call(
+        provinceDistrictMap,
+        baseDistrictName,
+      )
     ) {
-      district = this.districts[baseDistrictName];
+      district = provinceDistrictMap[baseDistrictName];
     }
 
     if (Object.prototype.hasOwnProperty.call(this.wards, baseWardName)) {
@@ -70,7 +86,7 @@ export class AreaService implements OnModuleInit {
     }
 
     if (ward !== null && ward !== undefined && !district) {
-      district = Object.values(this.districts).find(
+      district = Object.values(provinceDistrictMap).find(
         (d) => `${d.id}` === `${ward.districtId}`,
       );
     }
