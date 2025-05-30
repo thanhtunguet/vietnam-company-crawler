@@ -1,10 +1,10 @@
 import {
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-  OneToOne,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    OneToMany,
+    OneToOne,
 } from 'typeorm';
 import { Business } from './Business.entity';
 import { Company } from './Company.entity';
@@ -58,12 +58,20 @@ OneToMany(
   () => Ward,
   (ward) => ward.district,
 )(District.prototype, 'wards');
+OneToMany(
+  () => Company,
+  (company) => company.district,
+)(District.prototype, 'companies');
 
 // Province entity relationships
 OneToMany(
   () => District,
   (district) => district.province,
 )(Province.prototype, 'districts');
+OneToMany(
+  () => Company,
+  (company) => company.province,
+)(Province.prototype, 'companies');
 
 OneToOne(
   () => ProvinceCrawlingLog,
@@ -76,6 +84,10 @@ ManyToOne(
   (district) => district.wards,
 )(Ward.prototype, 'district');
 JoinColumn({ name: 'DistrictId' })(Ward.prototype, 'district');
+OneToMany(
+  () => Company,
+  (company) => company.ward,
+)(Ward.prototype, 'companies');
 
 // WebSource entity relationships
 OneToMany(
@@ -136,19 +148,19 @@ ManyToMany(
 
 // Export all entities
 export {
-  Business,
-  Company,
-  CompanyBusinessMapping,
-  CompanyCrawlingLog,
-  CompanyStatus,
-  CrawlingStatus,
-  District,
-  Province,
-  ProvinceCrawlingLog,
-  Role,
-  User,
-  Ward,
-  WebSource,
+    Business,
+    Company,
+    CompanyBusinessMapping,
+    CompanyCrawlingLog,
+    CompanyStatus,
+    CrawlingStatus,
+    District,
+    Province,
+    ProvinceCrawlingLog,
+    Role,
+    User,
+    Ward,
+    WebSource
 };
 
 // Note: Entity classes follow the convention:

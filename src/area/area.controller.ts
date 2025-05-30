@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AddressDto, DistrictDto, ProvinceDto, ProvinceWithCompanyCountDto, WardDto } from 'src/_dtos';
 import { QueryFilterDto } from 'src/_filters/query-filter.dto';
@@ -140,5 +140,31 @@ export class AreaController {
       throw new Error('Address parameter is required');
     }
     return this.areaService.handleAddress(address);
+  }
+
+  @ApiResponse({
+    description: 'Reparse addresses for companies with missing district information',
+    status: 200,
+    schema: {
+      type: 'object',
+      properties: {
+        total: { 
+          type: 'number', 
+          description: 'Total number of companies processed' 
+        },
+        updated: { 
+          type: 'number', 
+          description: 'Number of companies successfully updated' 
+        },
+        failed: { 
+          type: 'number', 
+          description: 'Number of companies that failed to update' 
+        }
+      },
+    },
+  })
+  @Post('/reparse-missing-districts')
+  public async reparseMissingDistricts() {
+    return this.areaService.reparseCompaniesWithMissingDistrict();
   }
 }

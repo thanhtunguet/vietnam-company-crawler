@@ -105,6 +105,12 @@ export class Company {
   @ManyToOne(() => Province, province => province.companies)
   @JoinColumn({ name: 'ProvinceId' })
   province: Province;
+
+  @ManyToOne(() => District, district => district.companies)
+  @JoinColumn({ name: 'DistrictId' })
   district: District;
+
+  @ManyToOne(() => Ward, ward => ward.companies)
+  @JoinColumn({ name: 'WardId' })
   ward: Ward;
 }
