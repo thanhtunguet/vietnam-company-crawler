@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { Company } from './Company.entity';
 import { District } from './District.entity';
 import { ProvinceCrawlingLog } from './ProvinceCrawlingLog.entity';
@@ -33,6 +33,6 @@ export class Province {
   districts: District[];
   crawlingLog: ProvinceCrawlingLog;
 
-  // This relationship will be defined in index.ts
+  @OneToMany(() => Company, company => company.province)
   companies: Company[];
 }

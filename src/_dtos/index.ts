@@ -1,18 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export * from './province.dto';
-export * from './district.dto';
-export * from './ward.dto';
-export * from './company.dto';
+export * from './address-dto';
 export * from './company-status.dto';
+export * from './company.dto';
+export * from './district.dto';
+export * from './province-with-company-count.dto';
+export * from './province.dto';
+export * from './ward.dto';
 // Export other DTOs...
 
 // Import the DTOs after export to resolve circular dependencies
-import { ProvinceDto } from './province.dto';
-import { DistrictDto } from './district.dto';
-import { WardDto } from './ward.dto';
-import { CompanyDto } from './company.dto';
 import { CompanyStatusDto } from './company-status.dto';
+import { CompanyDto } from './company.dto';
+import { DistrictDto } from './district.dto';
+import { ProvinceDto } from './province.dto';
+import { WardDto } from './ward.dto';
 
 // Add ApiProperty decorators for reference fields after all classes are defined
 

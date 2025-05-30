@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { District, Province, Ward } from 'src/_entities';
+import { ProvinceWithCompanyCountDto } from 'src/_dtos/province-with-company-count.dto';
+import { Company, District, Province, Ward } from 'src/_entities';
 import { QueryFilterDto } from 'src/_filters/query-filter.dto';
 import { vietnameseSlugify } from 'src/_helpers/slugify';
 import { Like, Repository } from 'typeorm';
@@ -28,6 +29,53 @@ export class AreaService implements OnModuleInit {
       .trim();
   }
 
+  public handleAddress(address: string): {
+    province?: Province;
+    district?: District;
+    ward?: Ward;
+  } {
+    const [provinceName, districtName, wardName] = address
+      .split(',')
+      .map((item) => item.trim())
+      .reverse();
+
+    const baseProvinceName = vietnameseSlugify(
+      AreaService.getBaseProvinceName(provinceName),
+    );
+    const baseDistrictName = vietnameseSlugify(
+      AreaService.getBaseDistrictName(districtName),
+    );
+    const baseWardName = vietnameseSlugify(
+      AreaService.getBaseWardName(wardName),
+    );
+
+    let province: Province | undefined = undefined;
+    let district: District | undefined = undefined;
+    let ward: Ward | undefined = undefined;
+
+    if (Object.prototype.hasOwnProperty.call(this.provinces, baseProvinceName)) {
+      province = this.provinces[baseProvinceName];
+    }
+
+    if (Object.prototype.hasOwnProperty.call(this.districts, baseDistrictName)) {
+      district = this.districts[baseDistrictName];
+    }
+
+    if (Object.prototype.hasOwnProperty.call(this.wards, baseWardName)) {
+      ward = this.wards[baseWardName];
+    }
+
+    if (ward !== null && !district) {
+      district = Object.values(this.districts).find((d) => `${d.id}` === `${ward.districtId}`);
+    }
+
+    return {
+      province,
+      district,
+      ward,
+    };
+  }
+
   public provinces: Record<string, Province> = {};
 
   public districts: Record<string, District> = {};
@@ -41,6 +89,8 @@ export class AreaService implements OnModuleInit {
     private readonly districtRepository: Repository<District>,
     @InjectRepository(Ward)
     private readonly wardRepository: Repository<Ward>,
+    @InjectRepository(Company)
+    private readonly companyRepository: Repository<Company>,
   ) {}
 
   public async onModuleInit() {
@@ -226,6 +276,46 @@ export class AreaService implements OnModuleInit {
       take,
       order: orderQuery,
       relations: ['district', 'district.province'],
+    });
+  }
+
+  public async getProvincesWithCompanyCount(query: QueryFilterDto): Promise<ProvinceWithCompanyCountDto[]> {
+    const { skip, take, search, orderBy, order } = query;
+
+    const where = [];
+    if (search) {
+      where.push({
+        name: Like(`%${search}%`),
+      });
+      where.push({
+        code: Like(`${search}%`),
+      });
+    }
+
+    const provinces = await this.provinceRepository.find({
+      where,
+      skip,
+      take,
+      order: orderBy ? { [orderBy]: order || 'ASC' } : { name: 'ASC' },
+    });
+
+    const results: Record<number, number> = {};
+
+    for (const province of provinces) {
+      const companyCount = await this.companyRepository.count({
+        where: {
+          provinceId: province.id,
+        }
+      });
+      results[province.id] = companyCount;
+    }
+
+    return provinces.map((province) => {
+      return {
+        ...province,
+        slug: vietnameseSlugify(province.name.replace(/Tỉnh|Thành phố|TP\./, '')),
+        companyCount: results[province.id],
+      };
     });
   }
 }

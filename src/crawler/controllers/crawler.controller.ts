@@ -1,5 +1,8 @@
 import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
 import { ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { QueryFilterDto } from 'src/_filters/query-filter.dto';
+import { vietnameseSlugify } from 'src/_helpers/slugify';
+import { AreaService } from 'src/area/area.service';
 import { InfoDoanhNghiepAdapter } from '../adapters/infodoanhnghiep.adapter';
 import { ProvinceData } from '../dtos/province-data.dto';
 import { ProxyAddressDto } from '../dtos/proxy-address.dto';
@@ -12,6 +15,7 @@ export class CrawlerController {
     @Inject('InfoDoanhNghiepAdapter')
     private readonly infoDoanhNghiepAdapter: InfoDoanhNghiepAdapter,
     private readonly crawlerProxyService: CrawlerProxyService,
+    private readonly areaService: AreaService,
   ) {}
 
   @Get('/public-ips')
@@ -45,7 +49,24 @@ export class CrawlerController {
     type: [ProvinceData],
   })
   public async getProvinces(): Promise<ProvinceData[]> {
-    return this.infoDoanhNghiepAdapter.getProvinceData();
+    const provinceDataList = await this.infoDoanhNghiepAdapter.getProvinceData();
+    
+    const provinces = await this.areaService.getProvincesWithCompanyCount(new QueryFilterDto());
+    
+    return provinceDataList.map((provinceData) => {
+      const slugName = vietnameseSlugify(provinceData.name.replace(/Tỉnh|Thành phố|TP\./, ''));
+
+      console.log(slugName);
+      
+      const province = provinces.find((p) => slugName.includes(p.slug));
+      
+      return {
+        ...provinceData,
+        currentCount: province.companyCount,
+        slug: slugName,
+      };
+    });
+    
   }
 
   @Get('/trigger-all')

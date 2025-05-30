@@ -12,13 +12,9 @@ import {
   Business,
   Company,
   CompanyBusinessMapping,
-  CompanyStatus,
-  District,
-  Province,
-  Ward,
+  CompanyStatus
 } from 'src/_entities';
 import { splitArrayByLength } from 'src/_helpers/array';
-import { vietnameseSlugify } from 'src/_helpers/slugify';
 import { AreaService } from 'src/area/area.service';
 import { Repository } from 'typeorm';
 import { CrawlerHttpClient } from '../crawler.http-client';
@@ -106,7 +102,13 @@ export class InfoDoanhNghiepAdapter
               .replace(/^(.*)trang\-([0-9]+)\/$/i, '$2'),
           );
 
-          province.totalCompanies = province.numberOfPages * PER_PAGE;
+          const lastPageHtml = await this.http.get(
+            `${province.link}trang-${province.numberOfPages}/`,
+          );
+          const $lastPage = load(lastPageHtml);
+          const lastPageCompanies = $lastPage('.m-page .company-name').length;
+
+          province.totalCompanies = PER_PAGE * (province.numberOfPages - 1) + lastPageCompanies;
           return province;
         }),
       );
@@ -127,8 +129,7 @@ export class InfoDoanhNghiepAdapter
     const html = await this.http.get(pageUrl);
     const $ = load(html);
     const companies: Partial<CompanyDetails>[] = [];
-
-    const handleAddress = this.handleAddress;
+    const adapter = this;
 
     $('.company-item').each(function () {
       const company: Partial<CompanyDetails> = {};
@@ -165,7 +166,7 @@ export class InfoDoanhNghiepAdapter
           .replace(/Địa\s*chỉ:\s*/im, '')
           .trim();
 
-        const { province, district, ward } = handleAddress(company.address);
+        const { province, district, ward } = adapter.areaService.handleAddress(company.address);
 
         Object.assign(company, {
           province,
@@ -185,53 +186,6 @@ export class InfoDoanhNghiepAdapter
 
     return companies;
   }
-
-  private readonly handleAddress = (
-    address: string,
-  ): {
-    province?: Province;
-    district?: District;
-    ward?: Ward;
-  } => {
-    const [provinceName, districtName, wardName] = address
-      .split(',')
-      .map((item) => item.trim())
-      .reverse();
-
-    const baseProvinceName = vietnameseSlugify(
-      AreaService.getBaseProvinceName(provinceName),
-    );
-    const baseDistrictName = vietnameseSlugify(
-      AreaService.getBaseDistrictName(districtName),
-    );
-    const baseWardName = vietnameseSlugify(
-      AreaService.getBaseWardName(wardName),
-    );
-
-    const { provinces, districts, wards } = this.areaService;
-
-    let province: Province | undefined = undefined;
-    let district: District | undefined = undefined;
-    let ward: Ward | undefined = undefined;
-
-    if (Object.prototype.hasOwnProperty.call(provinces, baseProvinceName)) {
-      province = provinces[baseProvinceName];
-    }
-
-    if (Object.prototype.hasOwnProperty.call(districts, baseDistrictName)) {
-      district = districts[baseDistrictName];
-    }
-
-    if (Object.prototype.hasOwnProperty.call(wards, baseWardName)) {
-      ward = wards[baseWardName];
-    }
-
-    return {
-      province,
-      district,
-      ward,
-    };
-  };
 
   public async extractCompanyDetails(
     companyDetails: CompanyDetails,
@@ -286,7 +240,7 @@ export class InfoDoanhNghiepAdapter
       .text()
       .trim();
 
-    const { province, district, ward } = this.handleAddress(company.address);
+    const { province, district, ward } = this.areaService.handleAddress(company.address);
 
     Object.assign(company, {
       province,

@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { DistrictDto, ProvinceDto, WardDto } from 'src/_dtos';
+import { AddressDto, DistrictDto, ProvinceDto, ProvinceWithCompanyCountDto, WardDto } from 'src/_dtos';
 import { QueryFilterDto } from 'src/_filters/query-filter.dto';
 import { AreaService } from './area.service';
 
@@ -19,6 +19,18 @@ export class AreaController {
     @Query() query: QueryFilterDto,
   ): Promise<ProvinceDto[]> {
     return this.areaService.getProvinces(query);
+  }
+
+  @ApiResponse({
+    type: [ProvinceWithCompanyCountDto],
+    description: 'List of provinces with company counts',
+    status: 200,
+  })
+  @Get('/provinces/with-company-count')
+  public async provincesWithCompanyCount(
+    @Query() query: QueryFilterDto,
+  ): Promise<ProvinceWithCompanyCountDto[]> {
+    return this.areaService.getProvincesWithCompanyCount(query);
   }
 
   @ApiResponse({
@@ -113,5 +125,20 @@ export class AreaController {
     @Query() query: QueryFilterDto,
   ): Promise<WardDto[]> {
     return this.areaService.getWardsByDistrict(Number(districtId), query);
+  }
+
+  @ApiResponse({
+    type: AddressDto,
+    description: 'Parse address string to find province, district and ward',
+    status: 200,
+  })
+  @Get('/parse-address')
+  public async parseAddress(
+    @Query('address') address: string,
+  ): Promise<AddressDto> {
+    if (!address) {
+      throw new Error('Address parameter is required');
+    }
+    return this.areaService.handleAddress(address);
   }
 }

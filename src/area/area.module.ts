@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AreaService } from './area.service';
-import { AreaController } from './area.controller';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Company, District, Province, Ward } from 'src/_entities';
-import { ConfigModule } from '@nestjs/config';
+import { AreaController } from './area.controller';
+import { AreaService } from './area.service';
 
 @Module({
   imports: [

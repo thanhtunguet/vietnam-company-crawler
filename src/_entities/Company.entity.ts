@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Business } from './Business.entity';
 import { CompanyBusinessMapping } from './CompanyBusinessMapping.entity';
 import { CompanyCrawlingLog } from './CompanyCrawlingLog.entity';
@@ -102,6 +102,8 @@ export class Company {
   crawlingLog: CompanyCrawlingLog;
 
   // These relationships will be defined in index.ts
+  @ManyToOne(() => Province, province => province.companies)
+  @JoinColumn({ name: 'ProvinceId' })
   province: Province;
   district: District;
   ward: Ward;
