@@ -38,6 +38,14 @@ export class AreaService implements OnModuleInit {
     ward?: Ward;
   } {
     const [provinceName, districtName, wardName] = address
+      .replace(/,\s*,\s*/g, ', ')
+      .replace('Phan Rang, Tháp Chàm', 'Phan Rang-Tháp Chàm')
+      .replace('Hết HL', 'Hết hiệu lực')
+      .replace('Thành phố Thủ Đức (Hết HL)', 'Quận Thủ Đức (Hết hiệu lực)')
+      .replace('Huyện ĐồngAnh', 'Đông Anh')
+      .replace('Huyện Krông Pắk', 'Huyện Krông Pắc')
+      .replace('Huyện ĐakPơ', 'Huyện Đăk Pơ')
+      .replace('Huyện Đảo', 'Huyện')
       .split(',')
       .map((item) => item.trim())
       .reverse();
