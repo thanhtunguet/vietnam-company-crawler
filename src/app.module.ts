@@ -49,4 +49,4 @@ import { OpenaiModule } from './openai/openai.module';
   ],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

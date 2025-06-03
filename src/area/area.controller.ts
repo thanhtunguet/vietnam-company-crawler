@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   AddressDto,
   DistrictDto,
@@ -9,6 +9,7 @@ import {
 } from 'src/_dtos';
 import { QueryFilterDto } from 'src/_filters/query-filter.dto';
 import { AreaService } from './area.service';
+import { ParseAddressDto } from './dtos/parse-address.dto';
 
 @ApiTags('Administrative Areas')
 @Controller('/api/area')
@@ -133,15 +134,19 @@ export class AreaController {
     return this.areaService.getWardsByDistrict(Number(districtId), query);
   }
 
+  @ApiBody({
+    type: ParseAddressDto,
+  })
   @ApiResponse({
     type: AddressDto,
     description: 'Parse address string to find province, district and ward',
     status: 200,
   })
-  @Get('/parse-address')
+  @Post('/parse-address')
   public async parseAddress(
-    @Query('address') address: string,
+    @Body() body: { address: string },
   ): Promise<AddressDto> {
+    const { address } = body;
     if (!address) {
       throw new Error('Address parameter is required');
     }
