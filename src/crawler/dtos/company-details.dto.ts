@@ -1,5 +1,12 @@
 import type { District, Province, Ward } from 'src/_entities';
 
+export class BusinessDetails {
+  id: number;
+  code: string;
+  name: string;
+  isMainBusiness?: boolean;
+}
+
 export class CompanyDetails {
   id?: number;
 
@@ -20,4 +27,6 @@ export class CompanyDetails {
   district?: District;
 
   ward?: Ward;
+
+  businesses?: BusinessDetails[];
 }

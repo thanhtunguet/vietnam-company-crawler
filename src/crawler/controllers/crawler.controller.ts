@@ -246,4 +246,19 @@ export class CrawlerController {
       return { error: 'Error getting crawl progress' };
     }
   }
+
+  @Get('/update-company-details')
+  @ApiResponse({
+    type: String,
+    description: 'Triggers updating details for all existing companies',
+  })
+  public async updateCompanyDetails() {
+    try {
+      await this.infoDoanhNghiepAdapter.updateExistingCompaniesDetails();
+      return 'Started updating company details for all existing companies';
+    } catch (error) {
+      console.error('Error triggering company details update:', error);
+      return 'Error triggering company details update';
+    }
+  }
 }

@@ -102,15 +102,15 @@ export class Company {
   crawlingLog: CompanyCrawlingLog;
 
   // These relationships will be defined in index.ts
-  @ManyToOne(() => Province, province => province.companies)
+  @ManyToOne(() => Province, (province) => province.companies)
   @JoinColumn({ name: 'ProvinceId' })
   province: Province;
 
-  @ManyToOne(() => District, district => district.companies)
+  @ManyToOne(() => District, (district) => district.companies)
   @JoinColumn({ name: 'DistrictId' })
   district: District;
 
-  @ManyToOne(() => Ward, ward => ward.companies)
+  @ManyToOne(() => Ward, (ward) => ward.companies)
   @JoinColumn({ name: 'WardId' })
   ward: Ward;
 }
